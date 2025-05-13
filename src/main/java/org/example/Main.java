@@ -11,5 +11,6 @@ public class Main {
 
         SpringApplication.run(Main.class, args);
         System.out.println("ApiRest corriendo");
+        System.out.println("El barto estuvo aqui");
     }
 }
