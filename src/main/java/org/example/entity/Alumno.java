@@ -24,6 +24,6 @@ public class Alumno {
     private int telefono;
     @ManyToOne
     @JoinColumn(name = "localidad_id", nullable = false)
-    private Localidad localidad;
+
     // Getters and Setters
 }
