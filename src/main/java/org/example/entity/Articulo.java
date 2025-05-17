@@ -14,6 +14,7 @@ import java.util.Date;
 
 public class Articulo extends BaseEntity{
 
+
     private String nomArt;
     private int stock;
     private String descriocionArt;
