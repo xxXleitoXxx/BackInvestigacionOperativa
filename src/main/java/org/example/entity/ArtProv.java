@@ -9,13 +9,11 @@ import lombok.Setter;
 import java.util.Date;
 
 @Entity
-@Data
 @Getter
 @Setter
-public class ArtProv {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Data
+public class ArtProv extends BaseEntity{
+
     private int PrecioArtProv;
     private Date fechaHoraBajaArtProv;
 
