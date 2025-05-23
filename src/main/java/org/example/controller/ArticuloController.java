@@ -26,7 +26,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
         switch(respuesta){
             case "alta": artServicio.alta(dto); break;
             case "baja": artServicio.baja(dto); break;
-            case "mod" : artServicio.mod(dto); break;
+            //case "mod" : artServicio.mod(dto); break;
         }
 
         return 0;

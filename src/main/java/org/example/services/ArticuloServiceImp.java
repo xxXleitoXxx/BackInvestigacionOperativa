@@ -30,7 +30,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     public void baja(ArtDTO dto) {
     }
 
-    public void mod(ArtDTO dto) {
+    /*public void mod(ArtDTO dto) {
         Articulo art = articuloRepository.findBy(dto.getId());
-    }
+    }*/
 }
