@@ -13,10 +13,10 @@ import lombok.Setter;
 @Setter
 @Data
 
-public class OrdenCompraArticulo extends BaseEntity{
+public class ArtVent extends BaseEntity{
 
-    private int cantArtPedida;
-
+    private int cantArtVent;
+    private int montoArt;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Articulo art;

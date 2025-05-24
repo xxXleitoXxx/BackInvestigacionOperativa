@@ -14,11 +14,13 @@ import java.util.Date;
 
 public class Articulo extends BaseEntity{
 
-
+    private String codArt;
     private String nomArt;
     private int stock;
     private String descriocionArt;
     private Date fechaHoraBajaArt;
+    private Provedor provedorElegido;
+
 
 
 }
