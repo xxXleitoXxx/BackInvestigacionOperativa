@@ -1,10 +1,7 @@
 package org.example.entity;
 import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,9 +9,12 @@ import java.util.List;
 
 @Entity
 @Data
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
+
 public class Proveedor extends BaseEntity {
 
     private String codProv;

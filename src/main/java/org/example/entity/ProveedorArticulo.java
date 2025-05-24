@@ -1,14 +1,17 @@
 package org.example.entity;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
 import java.util.Date;
 
 @Entity
+@Data
 @Getter
 @Setter
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
+
 public class ProveedorArticulo extends BaseEntity{
 
     private int PrecioArtProv;

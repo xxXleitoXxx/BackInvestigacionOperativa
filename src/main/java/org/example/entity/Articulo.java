@@ -5,9 +5,13 @@ import lombok.*;
 import java.util.Date;
 
 @Entity
+@Data
 @Getter
 @Setter
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+
+@EqualsAndHashCode(callSuper=false)
 
 public class Articulo extends BaseEntity{
 
