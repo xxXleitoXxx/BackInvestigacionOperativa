@@ -21,13 +21,13 @@ public class OrdenCompra extends BaseEntity{
     private Date fechaPedidoOrdCom;
     private int montoTotalOrdCom;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Proveedor prov;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private EstadoOrdenCompra estadoOrdCom;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrdenCompraArticulo> OrdenCompraArticulo = new ArrayList<>();
 
 

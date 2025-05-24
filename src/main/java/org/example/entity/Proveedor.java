@@ -22,7 +22,7 @@ public class Proveedor extends BaseEntity {
     private String descripcionProv;
     private Date fechaHoraBajaProv;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProveedorArticulo> proveedorArticulos = new ArrayList<>();
 
 

@@ -14,6 +14,6 @@ public class ProveedorArticulo extends BaseEntity{
     private int PrecioArtProv;
     private Date fechaHoraBajaArtProv;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Articulo art;
 }

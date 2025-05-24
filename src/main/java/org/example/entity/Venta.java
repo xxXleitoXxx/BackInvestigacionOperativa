@@ -24,7 +24,7 @@ public class Venta extends BaseEntity{
     private int montoTotalVent;
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<VentaArticulo> ventaArticulos = new ArrayList<>();
 
 

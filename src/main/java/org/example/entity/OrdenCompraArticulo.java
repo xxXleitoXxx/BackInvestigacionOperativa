@@ -18,7 +18,7 @@ public class OrdenCompraArticulo extends BaseEntity{
     private int cantArtPedida;
 
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Articulo art;
 
 
