@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Provedor extends BaseEntity {
+public class Proveedor extends BaseEntity {
 
     private String codProv;
     private String nomProv;
@@ -23,7 +23,7 @@ public class Provedor extends BaseEntity {
     private Date fechaHoraBajaProv;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<ArtProv> ArtProv = new ArrayList<>();
+    private List<ProveedorArticulo> proveedorArticulos = new ArrayList<>();
 
 
 

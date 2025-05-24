@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @Data
 
-public class ArtVent extends BaseEntity{
+public class VentaArticulo extends BaseEntity{
 
     private int cantArtVent;
     private int montoArt;

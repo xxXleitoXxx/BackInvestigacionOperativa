@@ -22,7 +22,7 @@ public class OrdenCompra extends BaseEntity{
     private int montoTotalOrdCom;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Provedor prov;
+    private Proveedor prov;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private EstadoOrdenCompra estadoOrdCom;

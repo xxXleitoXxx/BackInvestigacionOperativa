@@ -9,7 +9,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Data
-public class ArtProv extends BaseEntity{
+public class ProveedorArticulo extends BaseEntity{
 
     private int PrecioArtProv;
     private Date fechaHoraBajaArtProv;

@@ -25,7 +25,7 @@ public class Venta extends BaseEntity{
 
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<ArtVent> Artvent = new ArrayList<>();
+    private List<VentaArticulo> ventaArticulos = new ArrayList<>();
 
 
 
