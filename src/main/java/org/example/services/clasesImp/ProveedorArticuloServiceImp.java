@@ -7,7 +7,9 @@ import org.example.repository.ProveedorArticuloRepository;
 import org.example.services.BaseService;
 import org.example.services.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ProveedorArticuloServiceImp extends BaseServiceImpl <ProveedorArticulo,Long> implements BaseService<ProveedorArticulo,Long> {
 
     //Repositorio

@@ -6,7 +6,9 @@ import org.example.repository.VentaRepository;
 import org.example.services.BaseService;
 import org.example.services.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class VentaServiceImp extends BaseServiceImpl <Venta,Long> implements BaseService <Venta,Long> {
 
     //Repositorio

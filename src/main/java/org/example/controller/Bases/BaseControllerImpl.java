@@ -1,4 +1,4 @@
-package org.example.controller;
+package org.example.controller.Bases;
 
 
 import org.example.entity.BaseEntity;
@@ -13,9 +13,11 @@ import java.util.List;
 
 public abstract class BaseControllerImpl<E extends BaseEntity, S extends BaseServiceImpl<E,Long>> implements BaseController<E,Long> {
 
+    //Servicio genérico
     @Autowired
     protected S servicio;
 
+    //Métodos REST
 
     //nos devuelve una lista de entidades o error, por eso usamos el "?"
     @GetMapping("")
