@@ -7,6 +7,7 @@ import org.example.repository.BaseRepository;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+import java.lang.reflect.Field;
 
 public abstract class BaseServiceImpl<E extends BaseEntity, ID extends Serializable> implements BaseService<E,ID> {
     //protected para que solo la puedan usar las entidades que extienden de Serializable
@@ -69,13 +70,25 @@ public abstract class BaseServiceImpl<E extends BaseEntity, ID extends Serializa
     public E update(ID id, E entity) throws Exception {
         try {
             Optional<E> getEntity = baseRespository.findById(id);
-            E entityUpdate = getEntity.get();
-            baseRespository.save(entityUpdate);
-            return entityUpdate;
-        } catch (Exception e){
-            throw new Exception(e.getMessage());
+            if (getEntity.isPresent()) {
+                E entityUpdate = getEntity.get();
+                System.out.println("Antes de copiar propiedades: " + entityUpdate.toString());
+                copyAllProperties(entity, entityUpdate);
+                System.out.println("Después de copiar propiedades: " + entityUpdate.toString());
+                baseRespository.save(entityUpdate);
+                return entityUpdate;
+            } else {
+                throw new Exception("Entidad no encontrada");
+            }
+        } catch (IllegalAccessException e) {
+            System.err.println("Error de acceso ilegal: " + e.getMessage());
+            throw new Exception("Error de acceso ilegal: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error en el método update: " + e.getMessage());
+            throw new Exception("Error al actualizar la entidad: " + e.getMessage());
         }
     }
+
 
     @Override
     @Transactional
@@ -91,7 +104,19 @@ public abstract class BaseServiceImpl<E extends BaseEntity, ID extends Serializa
             throw new Exception(e.getMessage());
         }
     }
-
-
+    private void copyAllProperties(E source, E target) {
+        Field[] fields = source.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            try {
+                field.setAccessible(true);
+                Object value = field.get(source);
+                field.set(target, value);
+            } catch (IllegalAccessException e) {
+                System.err.println("Error al acceder al campo " + field.getName() + ": " + e.getMessage());
+            } catch (Exception e) {
+                System.err.println("Error al copiar el campo " + field.getName() + ": " + e.getMessage());
+            }
+        }
+    }
 
 }
