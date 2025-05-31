@@ -20,4 +20,6 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor,Long> impleme
         super(baseRespository);
         this.proveedorRepository = proveedorRepository;
     }
+
+
 }

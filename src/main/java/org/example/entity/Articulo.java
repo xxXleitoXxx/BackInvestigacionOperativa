@@ -10,7 +10,6 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
 @EqualsAndHashCode(callSuper=false)
 
 public class Articulo extends BaseEntity{

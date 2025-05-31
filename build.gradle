@@ -23,6 +23,8 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok:1.18.38")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
+
 
 }
 
