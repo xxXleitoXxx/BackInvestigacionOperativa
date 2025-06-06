@@ -1,7 +1,9 @@
 package org.example.services.clasesImp;
 
+import org.example.entity.Articulo;
 import org.example.entity.Venta;
 import org.example.entity.VentaArticulo;
+import org.example.repository.ArticuloRepository;
 import org.example.repository.BaseRepository;
 import org.example.repository.VentaRepository;
 import org.example.services.BaseService;
@@ -15,6 +17,8 @@ public class VentaServiceImp extends BaseServiceImpl <Venta,Long> implements Bas
     //Repositorio
     @Autowired
     VentaRepository ventaRepository;
+    @Autowired
+    ArticuloRepository articuloRepository;
 
     //Constructor
     public VentaServiceImp(BaseRepository<Venta, Long> baseRespository, VentaRepository ventaRepository) {
@@ -37,10 +41,12 @@ public class VentaServiceImp extends BaseServiceImpl <Venta,Long> implements Bas
 
     public void ActualizarStock(Venta venta){
         System.out.println("haadddda");
-        for(VentaArticulo va : venta.getVentaArticulos()) {
-            int Stockrestar= va.getArt().getStock() - va.getCantArtVent();
-            va.getArt().setStock(Stockrestar);
+        for (VentaArticulo va : venta.getVentaArticulos()) {
+            int stockRestante = va.getArt().getStock() - va.getCantArtVent();
+            va.getArt().setStock(stockRestante);
+            articuloRepository.save(va.getArt());
         }
+        System.out.println("hsddas");
     }
 
 }

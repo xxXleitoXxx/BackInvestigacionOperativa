@@ -33,6 +33,7 @@ public class VentaController extends BaseControllerImpl<Venta, VentaServiceImp> 
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No se puede concretar esta venta");
             }
         } catch(Exception e){
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
         }
     }
