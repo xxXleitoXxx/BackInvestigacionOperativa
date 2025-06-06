@@ -19,7 +19,7 @@ public class VentaArticulo extends BaseEntity{
     private int cantArtVent;
     private int montoArt;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     private Articulo art;
 
 

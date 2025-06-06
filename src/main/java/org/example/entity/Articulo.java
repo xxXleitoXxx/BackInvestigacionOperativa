@@ -17,6 +17,7 @@ public class Articulo extends BaseEntity{
     private String codArt;
     private String nomArt;
     private int stock;
+    private int PrecioVenta;
     private String descriocionArt;
     private Date fechaHoraBajaArt;
     private Proveedor provedorElegido;
