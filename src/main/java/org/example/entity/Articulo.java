@@ -1,6 +1,7 @@
 package org.example.entity;
 import jakarta.persistence.Entity;
 import lombok.*;
+import org.example.TipoLote;
 
 import java.util.Date;
 
@@ -21,6 +22,8 @@ public class Articulo extends BaseEntity{
     private String descriocionArt;
     private Date fechaHoraBajaArt;
     private Proveedor provedorElegido;
+    public TipoLote tipoLote;
+    private int sotckSeguridad;
 
 
 

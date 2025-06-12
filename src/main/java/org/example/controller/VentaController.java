@@ -20,12 +20,8 @@ public class VentaController extends BaseControllerImpl<Venta, VentaServiceImp> 
     @PostMapping("/vent")
     public ResponseEntity<?> guardarVenta(@RequestBody  Venta venta){
         try {
-            System.out.println("hola");
-            System.out.println("holaaass");
             boolean ventaP = this.ventaServiceImp.controlVenta(venta);
-            System.out.println("holaaa");
             if (ventaP == true) {
-                System.out.println("dddd");
                 ventaServiceImp.ActualizarStock(venta);
                 ventaServiceImp.save(venta);
                 return ResponseEntity.ok("savedVenta");

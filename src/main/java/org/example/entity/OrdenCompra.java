@@ -15,7 +15,6 @@ import java.util.List;
 
 public class OrdenCompra extends BaseEntity{
 
-    private String codOrdCom;
     private Date fechaLlegadaOrdCom;
     private Date fechaPedidoOrdCom;
     private int montoTotalOrdCom;
