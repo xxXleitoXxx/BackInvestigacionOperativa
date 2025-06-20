@@ -48,7 +48,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
         }
 
         //BajaArticulo
-        @PutMapping("/bajaArticulo")
+        @PutMapping("/bajaArticulo/{id}")
         public ResponseEntity<?> bajaArticulo(@RequestBody Articulo articulo ){
             try{
                 Articulo articuloModificado = servicio.bajaArticulo(articulo);
@@ -59,7 +59,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
         }
 
         //ModificarArticulo
-        @PutMapping("/modificar")
+        @PutMapping("/modificarArticulo/{id}")
         public ResponseEntity<?> modificarArticulo(@RequestBody Articulo articulo) {
             try {
                 Articulo actualizado = servicio.modificarArticulo(articulo);
