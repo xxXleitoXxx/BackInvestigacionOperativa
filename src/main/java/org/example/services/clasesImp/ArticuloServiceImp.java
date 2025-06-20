@@ -50,9 +50,9 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             throw new Exception("Ya existe un artículo con el código: " + articulo.getCodArt());
         }
         // Validar existencia del proveedor
-//        if (proveedorService.findById(articulo.getProvedorElegido().getId()) == null) {
-//            throw new Exception("El proveedor con ID " + articulo.getProvedorElegido().getId() + " no existe.");
-//        }
+        if (proveedorService.findById(articulo.getProveedorElegido().getId()) == null) {
+            throw new Exception("El proveedor con ID " + articulo.getProveedorElegido().getId() + " no existe.");
+        }
         // Guardar artículo
         return save(articulo);
     }

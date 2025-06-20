@@ -1,4 +1,5 @@
 package org.example.entity;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,9 @@ public class ProveedorArticulo extends BaseEntity{
     private int PrecioArtProv;
     private boolean tipoModeloInventario;
     private Date fechaHoraBajaArtProv;
+    private int demoraEntrega;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    @JsonProperty("articulo")
     private Articulo art;
 }

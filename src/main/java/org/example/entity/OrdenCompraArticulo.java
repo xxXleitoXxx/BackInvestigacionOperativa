@@ -19,7 +19,7 @@ public class OrdenCompraArticulo extends BaseEntity{
     private int cantArtPedida;
 
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     private Articulo art;
 
 

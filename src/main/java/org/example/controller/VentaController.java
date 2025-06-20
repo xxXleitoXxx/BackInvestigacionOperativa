@@ -20,19 +20,20 @@ public class VentaController extends BaseControllerImpl<Venta, VentaServiceImp> 
     @PostMapping("/vent")
     public ResponseEntity<?> guardarVenta(@RequestBody  Venta venta){
         try {
-            System.out.println("hola");
-            System.out.println("holaaass");
+            System.out.println("A");
             boolean ventaP = this.ventaServiceImp.controlVenta(venta);
-            System.out.println("holaaa");
             if (ventaP == true) {
-                System.out.println("dddd");
+                System.out.println("B");
                 ventaServiceImp.ActualizarStock(venta);
+                System.out.println("C");
                 ventaServiceImp.save(venta);
+                System.out.println("D");
                 return ResponseEntity.ok("savedVenta");
             } else {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No se puede concretar esta venta");
             }
         } catch(Exception e){
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
         }
     }

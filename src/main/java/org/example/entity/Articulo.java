@@ -1,8 +1,11 @@
 package org.example.entity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
+import org.example.TipoLote;
+
 import java.time.LocalDateTime;
 
 
@@ -22,7 +25,6 @@ public class Articulo extends BaseEntity{
     private float precioVenta;
     private String descripcionArt;
     private LocalDateTime fechaHoraBajaArt;
-    //
 
     //Atributos para cálculo de inventario
     private int stock;
@@ -33,11 +35,12 @@ public class Articulo extends BaseEntity{
     private int puntoPedido;
     //Periodo fijo
     private int inventarioMaximo;
+    public TipoLote tipoLote;
 
     //Relaciones
-    @ManyToOne
+    @ManyToOne( fetch = FetchType.LAZY)
     @JoinColumn(name = "Proveedor_id")
-    private Proveedor provedorElegido;
+    private Proveedor proveedorElegido;
 
 
 }
