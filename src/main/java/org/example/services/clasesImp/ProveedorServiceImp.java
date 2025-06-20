@@ -5,11 +5,12 @@ import org.example.repository.BaseRepository;
 import org.example.repository.ProveedorRepository;
 import org.example.services.BaseService;
 import org.example.services.BaseServiceImpl;
+import org.example.services.interfaces.ProveedorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProveedorServiceImp extends BaseServiceImpl<Proveedor,Long> implements BaseService<Proveedor,Long> {
+public class ProveedorServiceImp extends BaseServiceImpl<Proveedor,Long> implements ProveedorService {
 
     //Repositorio
     @Autowired

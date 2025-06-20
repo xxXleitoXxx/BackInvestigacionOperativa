@@ -27,6 +27,7 @@ public class OrdenCompra extends BaseEntity{
     private EstadoOrdenCompra estadoOrdCom;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "FK_OrdenCompra")
     private List<OrdenCompraArticulo> OrdenCompraArticulo = new ArrayList<>();
 
 

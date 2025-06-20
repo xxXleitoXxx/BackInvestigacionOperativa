@@ -15,6 +15,7 @@ import java.util.Date;
 public class ProveedorArticulo extends BaseEntity{
 
     private int PrecioArtProv;
+    private boolean tipoModeloInventario;
     private Date fechaHoraBajaArtProv;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

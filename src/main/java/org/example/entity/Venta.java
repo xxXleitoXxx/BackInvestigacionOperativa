@@ -1,9 +1,6 @@
 package org.example.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -26,6 +23,7 @@ public class Venta extends BaseEntity{
 
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "FK_Venta")
     private List<VentaArticulo> ventaArticulos = new ArrayList<>();
 
 
