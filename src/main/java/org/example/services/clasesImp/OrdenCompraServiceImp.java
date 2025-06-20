@@ -1,6 +1,6 @@
 package org.example.services.clasesImp;
 
-import org.example.TipoLote;
+import org.example.enums.TipoLote;
 import org.example.entity.*;
 import org.example.repository.*;
 import org.example.services.BaseServiceImpl;
