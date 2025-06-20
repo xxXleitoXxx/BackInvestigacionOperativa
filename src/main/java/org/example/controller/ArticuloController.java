@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -14,6 +15,9 @@ import java.util.Map;
 @RequestMapping(path = "/Articulo")
 public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloServiceImp> {
 
+        //Métodos REST
+
+        //Post
         //Alta Articulo
         @PostMapping("/altaArticulo")
         public ResponseEntity<?> altaArticulo(@RequestBody Articulo articulo) {
@@ -47,6 +51,8 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
             }
         }
 
+        //PUT
+
         //BajaArticulo
         @PutMapping("/bajaArticulo/{id}")
         public ResponseEntity<?> bajaArticulo(@RequestBody Articulo articulo ){
@@ -68,5 +74,32 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
             }
         }
+
+        //GET
+
+        //listarArticulosActivos
+        @GetMapping("/articulosActivos")
+        public ResponseEntity<?> listarArticulosActivos() {
+            try {
+                List<Articulo> activos = servicio.listarArticulosActivos();
+                return ResponseEntity.ok(activos);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("error", "Error al obtener artículos activos."));
+            }
+        }
+
+        //listarArticulosDadosDeBaja
+        @GetMapping("/articulosDadosDeBaja")
+        public ResponseEntity<?> listarArticulosDadosDeBaja() {
+            try {
+                List<Articulo> dadosDeBaja = servicio.listarArticulosDadosDeBaja();
+                return ResponseEntity.ok(dadosDeBaja);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("error", "Error al obtener artículos dados de baja."));
+            }
+        }
+
 
 }

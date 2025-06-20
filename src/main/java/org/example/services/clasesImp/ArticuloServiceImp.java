@@ -1,5 +1,4 @@
 package org.example.services.clasesImp;
-
 import jakarta.transaction.Transactional;
 import org.example.entity.Articulo;
 import org.example.entity.OrdenCompra;
@@ -45,15 +44,11 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     @Transactional
     public Articulo altaArticulo(Articulo articulo) throws Exception {
 
-        // Validar código duplicado
+        //Validar código duplicado
         if (this.findByCodArt(articulo).isPresent()) {
             throw new Exception("Ya existe un artículo con el código: " + articulo.getCodArt());
         }
-        // Validar existencia del proveedor
-//        if (proveedorService.findById(articulo.getProveedorElegido().getId()) == null) {
-//            throw new Exception("El proveedor con ID " + articulo.getProveedorElegido().getId() + " no existe.");
-//        }
-        // Guardar artículo
+        //Guardar artículo
         return save(articulo);
     }
 
@@ -83,7 +78,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
         //Setear la fecha de baja como la actual.
         articulo.setFechaHoraBajaArt(LocalDateTime.now());
-        //dar de baja al artículo.
+        //Dar de baja al artículo.
         this.update(articulo.getId(), articulo);
 
         return articulo;
@@ -129,7 +124,23 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         return this.update(articuloExistente.getId(), articuloExistente);
     }
 
-    //Métodos auxiliares.
+    //listarArticulosActivos (sólo los no dados de baja)
+    @Transactional
+    public List<Articulo> listarArticulosActivos (){
+
+        return articuloRepository.findByFechaHoraBajaArtIsNull();
+
+    }
+
+    //listarArticulosDadosDeBaja
+    @Transactional
+    public List<Articulo> listarArticulosDadosDeBaja (){
+
+        return articuloRepository.findByFechaHoraBajaArtIsNotNull();
+
+    }
+
+
 
     //comprobarOrdenCompra Pendiente (No verifica que el artículo exista)
     @Transactional
