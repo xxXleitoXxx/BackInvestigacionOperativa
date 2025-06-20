@@ -29,7 +29,8 @@ public class Articulo extends BaseEntity{
     //Atributos para cálculo de inventario
     private int stock;
     private int stockSeguridad;
-    private float costoGeneralInventario;
+    private Float costoGeneralInventario;
+    private Float costoAlmacenamiento;
     //Lote fijo
     private int loteOptimo;
     private int puntoPedido;

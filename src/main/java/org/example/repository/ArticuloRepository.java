@@ -1,6 +1,7 @@
 package org.example.repository;
 
 import org.example.entity.Articulo;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,4 +19,7 @@ public interface ArticuloRepository extends BaseRepository<Articulo,Long> {
     //findByFechaHoraBajaArtIsNotNull: busca todos los artículos dados de baja
     List<Articulo> findByFechaHoraBajaArtIsNotNull();
 
+    //findArticulosFaltantes
+    @Query("SELECT a FROM Articulo a WHERE a.stock <= a.stockSeguridad AND a.fechaHoraBajaArt IS NULL")
+    List<Articulo> findArticulosFaltantes();
 }

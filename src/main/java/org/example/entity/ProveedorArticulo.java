@@ -22,5 +22,5 @@ public class ProveedorArticulo extends BaseEntity{
 
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JsonProperty("articulo")
-    private Articulo art;
+    private Articulo art; //acá tendría que haber una etiqueta para que no sea nulo
 }

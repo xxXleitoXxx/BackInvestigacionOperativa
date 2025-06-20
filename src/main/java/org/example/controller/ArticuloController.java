@@ -2,11 +2,11 @@ package org.example.controller;
 
 import org.example.controller.Bases.BaseControllerImpl;
 import org.example.entity.Articulo;
+import org.example.entity.Proveedor;
 import org.example.services.clasesImp.ArticuloServiceImp;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 
@@ -32,11 +32,6 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
             //Nombre nulo o en blanco
             if (articulo.getNomArt() == null || articulo.getNomArt().isBlank()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "El nombre del artículo es obligatorio."));
-            }
-
-            //Descripción nula o en blanco
-            if (articulo.getDescripcionArt() == null || articulo.getDescripcionArt().isBlank()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "La descripción del artículo es obligatoria."));
             }
 
             //Precio de venta Mayor  a 0
@@ -98,6 +93,30 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(Map.of("error", "Error al obtener artículos dados de baja."));
+            }
+        }
+
+        //listarProveedoresActivosPorArticulo
+        @GetMapping("/{id}/proveedores")
+        public ResponseEntity<?> listarProveedoresActivosPorArticulo(@PathVariable Long id) {
+            try {
+                List<Proveedor> proveedores = servicio.listarProveedoresPorArticulo(id);
+                return ResponseEntity.ok(proveedores);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"error\": \"No se pudo obtener la lista de proveedores: " + e.getMessage() + "\"}");
+            }
+        }
+
+        //listarProductosFaltantes
+        @GetMapping("/articulosFaltantes")
+        public ResponseEntity<?> listarProductosFaltantes() {
+            try {
+                List<Articulo> articulosFaltantes = servicio.listarArticulosFaltantes();
+                return ResponseEntity.ok(articulosFaltantes);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("{\"error\": \"No se pudo obtener la lista de artículos faltantes: " + e.getMessage() + "\"}");
             }
         }
 

@@ -1,5 +1,6 @@
 package org.example.services.clasesImp;
 
+import jakarta.transaction.Transactional;
 import org.example.enums.TipoLote;
 import org.example.entity.*;
 import org.example.repository.*;
@@ -117,7 +118,8 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
     }
 
     @Override
+    @Transactional
     public List<OrdenCompra> buscarOrdenCompraPorEstado(String codigoEstado) {
-        return List.of();
+        return ordenCompraRepository.findByEstadoCodigo(codigoEstado);
     }
 }

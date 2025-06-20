@@ -3,6 +3,7 @@ import jakarta.transaction.Transactional;
 import org.example.entity.Articulo;
 import org.example.entity.OrdenCompra;
 import org.example.entity.OrdenCompraArticulo;
+import org.example.entity.Proveedor;
 import org.example.repository.ArticuloRepository;
 import org.example.repository.BaseRepository;
 import org.example.services.BaseServiceImpl;
@@ -108,9 +109,6 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             articuloExistente.setNomArt(articulo.getNomArt());
         }
 
-        if (articulo.getDescripcionArt() != null && !articulo.getDescripcionArt().isBlank()) {
-            articuloExistente.setDescripcionArt(articulo.getDescripcionArt());
-        }
         if (articulo.getPrecioVenta() != null && articulo.getPrecioVenta() > 0) {
             articuloExistente.setPrecioVenta(articulo.getPrecioVenta());
         }
@@ -135,9 +133,26 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     }
 
+    //listaProveedorPorArticulo
+    @Transactional
+    public List<Proveedor> listarProveedoresPorArticulo (Long id) throws Exception{
 
+        //Buscar artículo
+        Articulo articulo = this.findById(id);
+        //Buscar lista de proveedores activos por artículo.
+        return proveedorService.findProveedoresActivosByArticuloId(id);
 
+    }
 
+    //listarArticulosFaltantes
+    @Transactional
+    public List<Articulo> listarArticulosFaltantes(){
+
+        return articuloRepository.findArticulosFaltantes();
+
+    }
+
+    //Métodos auxiliares.
 
     //comprobarOrdenCompra Pendiente (No verifica que el artículo exista)
     @Transactional
