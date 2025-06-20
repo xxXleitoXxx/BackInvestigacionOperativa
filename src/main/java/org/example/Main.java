@@ -10,11 +10,12 @@ public class Main {
     public static void main(String[] args) {
 
         SpringApplication.run(Main.class, args);
-        System.out.println("ApiRest corriendo");
-        System.out.println("El barto estuvo aaaqui");
-        System.out.println("El intento numero 197623983");
-        System.out.println("Esto va al main");
-        System.out.println("Estoy cansado jefe");
+        System.out.println(" _______  __    __  .__   __.  __  ___      ___           ______ .______          ___       ______  __  ___ ");
+        System.out.println("|   ____||  |  |  | |  \\ |  | |  |/  /     /   \\         /      ||   _  \\        /   \\     /      ||  |/  / ");
+        System.out.println("|  |__   |  |  |  | |   \\|  | |  '  /     /  ^  \\       |  ,----'|  |_)  |      /  ^  \\   |  ,----'|  '  /  ");
+        System.out.println("|   __|  |  |  |  | |  . `  | |    <     /  /_\\  \\      |  |     |      /      /  /_\\  \\  |  |     |    <   ");
+        System.out.println("|  |     |  `--'  | |  |\\   | |  .  \\   /  _____  \\     |  `----.|  |\\  \\----./  _____  \\ |  `----.|  .  \\  ");
+        System.out.println("|__|      \\______/  |__| \\__| |__|\\__\\ /__/     \\__\\     \\______|| _| `._____/__/     \\__\\ \\______||__|\\__\\");
 
     }
 }
