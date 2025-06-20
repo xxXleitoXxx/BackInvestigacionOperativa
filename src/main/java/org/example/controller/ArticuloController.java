@@ -55,10 +55,10 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
 
         //BajaArticulo
         @PutMapping("/bajaArticulo/{id}")
-        public ResponseEntity<?> bajaArticulo(@RequestBody Articulo articulo ){
+        public ResponseEntity<?> bajaArticulo(@PathVariable Long id){
             try{
-                Articulo articuloModificado = servicio.bajaArticulo(articulo);
-                return ResponseEntity.status(HttpStatus.OK).body(articuloModificado);
+                Articulo articuloBajado = servicio.bajaArticulo(id);
+                return ResponseEntity.status(HttpStatus.OK).body(articuloBajado);
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo dar de baja el artículo");
             }
@@ -66,9 +66,9 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
 
         //ModificarArticulo
         @PutMapping("/modificarArticulo/{id}")
-        public ResponseEntity<?> modificarArticulo(@RequestBody Articulo articulo) {
+        public ResponseEntity<?> modificarArticulo(@RequestBody Articulo articulo, @PathVariable Long id) {
             try {
-                Articulo actualizado = servicio.modificarArticulo(articulo);
+                Articulo actualizado = servicio.modificarArticulo(articulo, id);
                 return ResponseEntity.ok(actualizado);
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

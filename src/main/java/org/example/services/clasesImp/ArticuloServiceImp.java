@@ -54,56 +54,50 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     //bajaArticulo
     @Transactional
-    public Articulo bajaArticulo(Articulo articulo) throws Exception {
+    public Articulo bajaArticulo(Long id) throws Exception {
 
-        //Validar que el articulo existe
-        if (this.findById(articulo.getId()) == null){
-            throw new Exception("El Artículo ingresado no existe");
-        }
+        //Traer artículo para darlo de baja.
+        Articulo articuloDadoBaja = findById(id);
 
         //Comprobar que no haya unidades en Stock
-        if(this.findById(articulo.getId()).getStock() != 0){
+        if(articuloDadoBaja.getStock() != 0){
             throw new Exception("El artículo aún tiene unidades en stock");
         }
 
         //Comprobar que no fue dado de baja anteriormente.
-        if (this.findById(articulo.getId()).getFechaHoraBajaArt() != null){
+        if (articuloDadoBaja.getFechaHoraBajaArt() != null){
             throw new Exception("El artículo ya fue dado de baja");
         }
 
         //Comprobar que no haya una orden de compra pendiente con este artículo.
-        if (comprobarOrdenCompraModificable(articulo)){
+        if (comprobarOrdenCompraModificable(articuloDadoBaja)){
             throw new Exception("No se puede modificar el artículo porque ya se encuentra la Orden Pendiente o Enviada");
         }
 
         //Setear la fecha de baja como la actual.
-        articulo.setFechaHoraBajaArt(LocalDateTime.now());
+        articuloDadoBaja.setFechaHoraBajaArt(LocalDateTime.now());
         //Dar de baja al artículo.
-        this.update(articulo.getId(), articulo);
+        this.update(id, articuloDadoBaja);
 
-        return articulo;
+        return articuloDadoBaja;
     }
 
     //modificarArticulo
     @Transactional
-    public Articulo modificarArticulo (Articulo articulo) throws Exception {
+    public Articulo modificarArticulo(Articulo articulo, Long id) throws Exception {
 
-        //Validar que el articulo existe
-        if (this.findById(articulo.getId()) == null){
-            throw new Exception("El Artículo ingresado no existe");
-        }
+        // Traer artículo existente
+        Articulo articuloExistente = this.findById(id);
 
-        //Comprobar que no haya unidades en Stock
-        if(this.findById(articulo.getId()).getStock() != 0){
+        // Comprobar que no haya unidades en Stock
+        if (articuloExistente.getStock() != 0) {
             throw new Exception("El artículo aún tiene unidades en stock");
         }
 
-        //Comprobar que no fue dado de baja anteriormente.
-        if (this.findById(articulo.getId()).getFechaHoraBajaArt() != null){
+        // Comprobar que no fue dado de baja anteriormente
+        if (articuloExistente.getFechaHoraBajaArt() != null) {
             throw new Exception("El artículo ya fue dado de baja");
         }
-
-        Articulo articuloExistente = this.findById(articulo.getId());
 
         // Actualizar campos si vienen válidos
         if (articulo.getCodArt() != null && !articulo.getCodArt().isBlank()) {
@@ -117,11 +111,12 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         if (articulo.getDescripcionArt() != null && !articulo.getDescripcionArt().isBlank()) {
             articuloExistente.setDescripcionArt(articulo.getDescripcionArt());
         }
-
-        if (articulo.getPrecioVenta() > 0) {
+        if (articulo.getPrecioVenta() != null && articulo.getPrecioVenta() > 0) {
             articuloExistente.setPrecioVenta(articulo.getPrecioVenta());
         }
-        return this.update(articuloExistente.getId(), articuloExistente);
+
+        // Guardar cambios
+        return this.update(id, articuloExistente);
     }
 
     //listarArticulosActivos (sólo los no dados de baja)
@@ -139,6 +134,8 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         return articuloRepository.findByFechaHoraBajaArtIsNotNull();
 
     }
+
+
 
 
 
