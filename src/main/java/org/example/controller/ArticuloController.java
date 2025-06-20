@@ -35,7 +35,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
                 return ResponseEntity.badRequest().body(Map.of("error", "La descripción del artículo es obligatoria."));
             }
 
-            //Precio de venta menor a 0
+            //Precio de venta Mayor  a 0
             if (articulo.getPrecioVenta() <= 0) {
                 return ResponseEntity.badRequest().body(Map.of("error", "El precio de venta debe ser mayor a cero."));
             }

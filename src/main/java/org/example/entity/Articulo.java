@@ -19,7 +19,7 @@ public class Articulo extends BaseEntity{
     //Atributos
     private String codArt;
     private String nomArt;
-    private float PrecioVenta;
+    private float precioVenta;
     private String descripcionArt;
     private LocalDateTime fechaHoraBajaArt;
     //
