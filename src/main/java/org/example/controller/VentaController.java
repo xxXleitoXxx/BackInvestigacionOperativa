@@ -17,26 +17,26 @@ public class VentaController extends BaseControllerImpl<Venta, VentaServiceImp> 
     private VentaServiceImp ventaServiceImp;
 
 
-    @PostMapping("/vent")
-    public ResponseEntity<?> guardarVenta(@RequestBody  Venta venta){
-        try {
-            System.out.println("A");
-            boolean ventaP = this.ventaServiceImp.controlVenta(venta);
-            if (ventaP == true) {
-                System.out.println("B");
-                ventaServiceImp.ActualizarStock(venta);
-                System.out.println("C");
-                ventaServiceImp.save(venta);
-                System.out.println("D");
-                return ResponseEntity.ok("savedVenta");
-            } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No se puede concretar esta venta");
-            }
-        } catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
-        }
-    }
+//    @PostMapping("/vent")
+//    public ResponseEntity<?> guardarVenta(@RequestBody  Venta venta){
+//        try {
+//            System.out.println("A");
+//            boolean ventaP = this.ventaServiceImp.controlVenta(venta);
+//            if (ventaP == true) {
+//                System.out.println("B");
+//                ventaServiceImp.ActualizarStock(venta);
+//                System.out.println("C");
+//                ventaServiceImp.save(venta);
+//                System.out.println("D");
+//                return ResponseEntity.ok("savedVenta");
+//            } else {
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No se puede concretar esta venta");
+//            }
+//        } catch(Exception e){
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
+//        }
+//    }
 
 
 

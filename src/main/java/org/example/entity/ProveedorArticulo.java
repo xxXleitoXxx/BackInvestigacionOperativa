@@ -16,10 +16,19 @@ import java.util.Date;
 
 public class ProveedorArticulo extends BaseEntity{
 
-    private int precioArtProv;
     private Date fechaHoraBajaArtProv;
+    //Atributos Inventario
+    private Float costoGeneralInventario;
     private int demoraEntrega;
+    private Float costoUnitario;
     private  Float costoPedido;
+    private Float costoMantenimiento;
+    private  int cantidadOptima; //eoq
+    //Inventario Lote Fijo
+    private int loteOptimo; //R punto de volver a pedir
+    //Inventario Periodo Fijo
+    private int inventarioMaximo; //q cantidad a pedir.
+    private int periodoRevision;
 
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JsonProperty("articulo")

@@ -5,7 +5,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
 import org.example.enums.TipoLote;
-
 import java.time.LocalDateTime;
 
 
@@ -29,19 +28,13 @@ public class Articulo extends BaseEntity{
     //Atributos para cálculo de inventario
     private int stock;
     private int stockSeguridad;
-    private Float costoGeneralInventario;
-    private Float costoAlmacenamiento;
-    //Lote fijo
-    private int loteOptimo;
-    private int puntoPedido;
-    //Periodo fijo
-    private int inventarioMaximo;
-    public TipoLote tipoLote;
+    private int demandaDiaria;
+    private int desviacionEstandarPeriodoRevision;
 
     //Relaciones
     @ManyToOne( fetch = FetchType.LAZY)
     @JoinColumn(name = "Proveedor_id")
     private Proveedor proveedorElegido;
 
-
+    public TipoLote tipoLote; //hay que refactorizar
 }
