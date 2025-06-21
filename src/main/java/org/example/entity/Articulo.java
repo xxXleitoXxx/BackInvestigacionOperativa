@@ -30,6 +30,8 @@ public class Articulo extends BaseEntity{
     private int stockSeguridad;
     private int demandaDiaria;
     private int desviacionEstandarPeriodoRevision;
+    private int desviosEstandar;
+
 
     //Relaciones
     @ManyToOne( fetch = FetchType.LAZY)

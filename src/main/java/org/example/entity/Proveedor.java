@@ -29,6 +29,4 @@ public class Proveedor extends BaseEntity {
     @Size(min = 1)
     private List<ProveedorArticulo> proveedorArticulos = new ArrayList<>();
 
-
-
 }

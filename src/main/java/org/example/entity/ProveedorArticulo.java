@@ -29,6 +29,7 @@ public class ProveedorArticulo extends BaseEntity{
     //Inventario Periodo Fijo
     private int inventarioMaximo; //q cantidad a pedir.
     private int periodoRevision;
+    private int nivelDeServicio;//Se carga
 
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JsonProperty("articulo")

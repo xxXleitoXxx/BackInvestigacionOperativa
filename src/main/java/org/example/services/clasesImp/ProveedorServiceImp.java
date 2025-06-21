@@ -1,6 +1,7 @@
 package org.example.services.clasesImp;
 
 import jakarta.transaction.Transactional;
+import org.example.dto.ProveedorDto;
 import org.example.entity.Proveedor;
 import org.example.repository.BaseRepository;
 import org.example.repository.ProveedorRepository;
@@ -9,6 +10,7 @@ import org.example.services.interfaces.ProveedorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,4 +33,18 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor,Long> impleme
     public List<Proveedor> findProveedoresActivosByArticuloId(Long articuloId) {
         return proveedorRepository.findProveedoresActivosByArticuloId(articuloId);
     }
+
+    public List<ProveedorDto> getProveedores(){
+        List<Proveedor> proveedors = proveedorRepository.findAll();
+        List<ProveedorDto> proveedorDtos= new ArrayList<>();
+        for(Proveedor p:proveedors){
+         ProveedorDto pd = new ProveedorDto();
+
+            pd.setCodProv(p.getCodProv());
+            pd.setNomProv(p.getNomProv());
+            proveedorDtos.add(pd);
+        }
+        return proveedorDtos;
+    }
+
 }
