@@ -26,11 +26,13 @@ public class Articulo extends BaseEntity{
     private LocalDateTime fechaHoraBajaArt;
 
     //Atributos para cálculo de inventario
-    private int stock;
-    private int stockSeguridad;
-    private int demandaDiaria;
-    private int desviacionEstandarPeriodoRevision;
-    private int desviosEstandar;
+    private int stock; //se carga
+    private int stockSeguridad; //se calcula
+    private int demandaDiaria; //se carga
+    private int desviacionEstandarUsoPeriodoEntrega; //se carga
+    private int desviacionEstandarDurantePeriodoRevisionEntrega;
+
+
 
 
     //Relaciones
@@ -38,5 +40,5 @@ public class Articulo extends BaseEntity{
     @JoinColumn(name = "Proveedor_id")
     private Proveedor proveedorElegido;
 
-    public TipoLote tipoLote; //hay que refactorizar
+
 }
