@@ -26,7 +26,7 @@ public class ProveedorArticuloDTO {
     public TipoLote tipoLote;
 
     // Relaciones
-    private Long artId;
-    private String artNomArt;
+    private ArticuloDTO articuloDTO;
+
 }
 

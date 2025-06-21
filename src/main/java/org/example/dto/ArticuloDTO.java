@@ -21,6 +21,6 @@ public class ArticuloDTO {
     private int desviacionEstandarDurantePeriodoRevisionEntrega;
 
     // Relaciones
-    private Long proveedorElegidoId;
-    private String proveedorElegidoNomProv;
+    private ProveedorDTO proveedorDTO;
+
 }
