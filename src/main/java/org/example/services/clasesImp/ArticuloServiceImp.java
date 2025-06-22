@@ -3,7 +3,6 @@ import jakarta.transaction.Transactional;
 import org.example.dto.ArticuloDTO;
 import org.example.dto.ProveedorDTO;
 import org.example.entity.Articulo;
-import org.example.entity.OrdenCompra;
 import org.example.entity.Proveedor;
 import org.example.repository.ArticuloRepository;
 import org.example.repository.BaseRepository;
@@ -24,28 +23,34 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     private final ArticuloRepository articuloRepository;
 
     //Servicios consumidos.
-    private final   ProveedorService proveedorService;
-    private final  OrdenCompraService ordenCompraService;
+    private final ProveedorService proveedorService;
+    private final OrdenCompraService ordenCompraService;
 
     public ArticuloServiceImp(BaseRepository<Articulo, Long> baseRespository, ArticuloRepository articuloRepository, ProveedorService proveedorService, OrdenCompraService ordenCompraService) {
         super(baseRespository);
         this.articuloRepository = articuloRepository;
         this.proveedorService = proveedorService;
-        this.ordenCompraService =ordenCompraService;
+        this.ordenCompraService = ordenCompraService;
     }
 
     //Métodos
 
     //findByCodArt
     @Transactional
-    public Optional<Articulo> findByCodArt (Articulo articulo) {
-            return articuloRepository.findByCodArt(articulo.getCodArt());
+    public Optional<Articulo> findByCodArt(String codArt) {
+        return articuloRepository.findByCodArt(codArt);
     }
 
     //alta Artículo
     @Transactional
     public ArticuloDTO altaArticulo(ArticuloDTO articuloDTO) throws Exception {
 
+        //Validar código duplicado
+        if (findByCodArt(articuloDTO.getCodArt()).isPresent()) {
+            throw new Exception("Ya existe un artículo con el código: " + articuloDTO.getCodArt());
+        }
+
+        //Crear Articulo en memoria
         Articulo articuloNuevo = new Articulo();
         articuloNuevo.setCodArt(articuloDTO.getCodArt());
         articuloNuevo.setNomArt(articuloDTO.getNomArt());
@@ -56,59 +61,54 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         articuloNuevo.setDesviacionEstandarUsoPeriodoEntrega(articuloDTO.getDesviacionEstandarUsoPeriodoEntrega());
         articuloNuevo.setDesviacionEstandarDurantePeriodoRevisionEntrega(articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega());
 
-        //Validar código duplicado
-        if (this.findByCodArt(articuloNuevo).isPresent()) {
-            throw new Exception("Ya existe un artículo con el código: " + articuloDTO.getCodArt());
-        }
-
         // Si querés asignar proveedor:
         if (articuloDTO.getProveedorDTO() != null && articuloDTO.getProveedorDTO().getId() != null) {
 
             Proveedor proveedor = proveedorService.findById(articuloDTO.getProveedorDTO().getId());
-            if (proveedor == null){throw new Exception("El proveedor no existe");}
+            if (proveedor == null) {
+                throw new Exception("El proveedor no existe");
+            }
 
             articuloNuevo.setProveedorElegido(proveedor);
 
         } else {
-            articuloNuevo.setProveedorElegido(null); // explícitamente null
+            articuloNuevo.setProveedorElegido(null);
 
         }
 
         //Guardar artículo
-        Articulo articuloGuardado = articuloRepository.save(articuloNuevo);
+        Articulo articuloGuardado = save(articuloNuevo);
 
         return crearArticuloDTO(articuloGuardado);
     }
 
-    //bajaArticulo
     @Transactional
-    public Articulo bajaArticulo(Long id) throws Exception {
+    public ArticuloDTO bajaArticulo(ArticuloDTO articuloDTO) throws Exception {
+        // Buscar el artículo una sola vez
+        Articulo articulo = findById(articuloDTO.getId());
 
-        //Traer artículo para darlo de baja.
-        Articulo articuloDadoBaja = findById(id);
-
-        //Comprobar que no haya unidades en Stock
-        if(articuloDadoBaja.getStock() != 0){
-            throw new Exception("El artículo aún tiene unidades en stock");
+        if (articulo == null) {
+            throw new Exception("El articulo no existe");
         }
 
-        //Comprobar que no fue dado de baja anteriormente.
-        if (articuloDadoBaja.getFechaHoraBajaArt() != null){
+        if (comprobarStockAgotado(articuloDTO.getId())) {
+            throw new Exception("No se puede modificar, stock no agotado");
+        }
+
+        if (articulo.getFechaHoraBajaArt() != null) {
             throw new Exception("El artículo ya fue dado de baja");
         }
 
-        //Comprobar que no haya una orden de compra pendiente con este artículo.
-        if (comprobarOrdenCompraModificable(articuloDadoBaja)){
-            throw new Exception("No se puede modificar el artículo porque ya se encuentra la Orden Pendiente o Enviada");
-        }
+//        if (comprobarOrdenCompraModificable(articuloDTO.getId())) {
+//            throw new Exception("No se puede modificar el artículo porque ya se encuentra la Orden Pendiente o Enviada");
+//        }
 
-        //Setear la fecha de baja como la actual.
-        articuloDadoBaja.setFechaHoraBajaArt(LocalDateTime.now());
-        //Dar de baja al artículo.
-        this.update(id, articuloDadoBaja);
+        articulo.setFechaHoraBajaArt(LocalDateTime.now());
+        update(articulo.getId(), articulo);
 
-        return articuloDadoBaja;
+        return crearArticuloDTO(articulo);
     }
+
 
     //modificarArticulo
     @Transactional
@@ -146,15 +146,26 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     //listarArticulosActivos (sólo los no dados de baja)
     @Transactional
-    public List<Articulo> listarArticulosActivos (){
+    public List<ArticuloDTO> listarArticulosActivos() {
 
-        return articuloRepository.findByFechaHoraBajaArtIsNull();
+        // Obtener lista de Articulo que están activos (fechaHoraBajaArt = null)
+        List<Articulo> listaArticulosActivos = articuloRepository.findByFechaHoraBajaArtIsNull();
 
+        // Crear lista para almacenar los DTOs
+        List<ArticuloDTO> listaArticulosActivosDTO = new ArrayList<>();
+
+        // Convertir cada Articulo a ArticuloDTO
+        for (Articulo articulo : listaArticulosActivos) {
+            ArticuloDTO dto = crearArticuloDTO(articulo);
+            listaArticulosActivosDTO.add(dto);
+        }
+
+        return listaArticulosActivosDTO;
     }
 
     //listarArticulosDadosDeBaja
     @Transactional
-    public List<Articulo> listarArticulosDadosDeBaja (){
+    public List<Articulo> listarArticulosDadosDeBaja() {
 
         return articuloRepository.findByFechaHoraBajaArtIsNotNull();
 
@@ -162,7 +173,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     //listaProveedorPorArticulo
     @Transactional
-    public List<Proveedor> listarProveedoresPorArticulo (Long id) throws Exception{
+    public List<Proveedor> listarProveedoresPorArticulo(Long id) throws Exception {
 
         //Buscar artículo
         Articulo articulo = this.findById(id);
@@ -173,7 +184,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     //listarArticulosFaltantes
     @Transactional
-    public List<Articulo> listarArticulosFaltantes(){
+    public List<Articulo> listarArticulosFaltantes() {
 
         return articuloRepository.findArticulosFaltantes();
 
@@ -207,29 +218,42 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         return dto;
     }
 
-
-
     //comprobarOrdenCompra Pendiente (No verifica que el artículo exista)
-    @Transactional
-    private Boolean comprobarOrdenCompraModificable(Articulo articulo) {
+//    @Transactional
+//    private Boolean comprobarOrdenCompraModificable(Long id) throws Exception {
+//
+//        //Crear Articulo
+//        Articulo articulo = findById(id);
+//
+//        // Traer las órdenes de compra pendientes y enviadas
+//        List<OrdenCompra> ordenesPendientes = ordenCompraService.buscarOrdenCompraPorEstado("Pendiente");
+//        List<OrdenCompra> ordenesEnviadas = ordenCompraService.buscarOrdenCompraPorEstado("Enviado");
+//
+//        // Unir listas
+//        List<OrdenCompra> ordenesNoModificables = new ArrayList<>();
+//        ordenesNoModificables.addAll(ordenesPendientes);
+//        ordenesNoModificables.addAll(ordenesEnviadas);
+//
+//        // Iterar sobre cada orden y sus artículos asociados
+//        for (OrdenCompra orden : ordenesNoModificables) {
+//            for (OrdenCompraArticulo oca : orden.getOrdenCompraArticulo()) {
+//                if (oca.getArt().getId().equals(articulo.getId())) {
+//                    return true; // El artículo está en una orden no modificable (pendiente o enviada)
+//                }
+//            }
+//        }
+//        return false; // El artículo no está en ninguna orden pendiente ni enviada
+//    }
 
-        // Traer las órdenes de compra pendientes y enviadas
-        List<OrdenCompra> ordenesPendientes = ordenCompraService.buscarOrdenCompraPorEstado("Pendiente");
-        List<OrdenCompra> ordenesEnviadas = ordenCompraService.buscarOrdenCompraPorEstado("Enviado");
+    private Boolean comprobarStockAgotado(Long id) throws Exception {
 
-        // Unir listas
-        List<OrdenCompra> ordenesNoModificables = new ArrayList<>();
-        ordenesNoModificables.addAll(ordenesPendientes);
-        ordenesNoModificables.addAll(ordenesEnviadas);
+        //Crear Articulo
+        Articulo articulo = findById(id);
 
-        // Iterar sobre cada orden y sus artículos asociados
-        for (OrdenCompra orden : ordenesNoModificables) {
-                if (orden.getArticulo().getId().equals(articulo.getId())) {
-                    return true; // El artículo está en una orden no modificable (pendiente o enviada)
-                }
-
+        if (articulo.getStock() != 0) {
+            return true;
         }
-        return false; // El artículo no está en ninguna orden pendiente ni enviada
+        return false;
     }
-
 }
+

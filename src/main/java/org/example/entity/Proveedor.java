@@ -1,10 +1,8 @@
 package org.example.entity;
 import jakarta.persistence.*;
-
+import jakarta.validation.constraints.NotBlank; // Importar NotBlank
 import jakarta.validation.constraints.Size;
 import lombok.*;
-
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,7 +17,9 @@ import java.util.List;
 public class Proveedor extends BaseEntity {
 
     @Column(unique = true, nullable = false)
+    @NotBlank(message = "El código del proveedor es obligatorio.") // Añadido
     private String codProv;
+    @NotBlank(message = "El nombre del proveedor es obligatorio.") // Añadido
     private String nomProv;
     private String descripcionProv;
     private Date fechaHoraBajaProv;
@@ -30,3 +30,4 @@ public class Proveedor extends BaseEntity {
     private List<ProveedorArticulo> proveedorArticulos = new ArrayList<>();
 
 }
+//@Size(min = 1)
