@@ -1,5 +1,7 @@
 package org.example.services.clasesImp;
 import jakarta.transaction.Transactional;
+import org.example.dto.ArticuloDTO;
+import org.example.dto.ProveedorDTO;
 import org.example.entity.Articulo;
 import org.example.entity.OrdenCompra;
 import org.example.entity.OrdenCompraArticulo;
@@ -43,14 +45,40 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     //alta Artículo
     @Transactional
-    public Articulo altaArticulo(Articulo articulo) throws Exception {
+    public ArticuloDTO altaArticulo(ArticuloDTO articuloDTO) throws Exception {
+
+        Articulo articuloNuevo = new Articulo();
+        articuloNuevo.setCodArt(articuloDTO.getCodArt());
+        articuloNuevo.setNomArt(articuloDTO.getNomArt());
+        articuloNuevo.setPrecioVenta(articuloDTO.getPrecioVenta());
+        articuloNuevo.setDescripcionArt(articuloDTO.getDescripcionArt());
+        articuloNuevo.setStock(articuloDTO.getStock());
+        articuloNuevo.setDemandaDiaria(articuloDTO.getDemandaDiaria());
+        articuloNuevo.setDesviacionEstandarUsoPeriodoEntrega(articuloDTO.getDesviacionEstandarUsoPeriodoEntrega());
+        articuloNuevo.setDesviacionEstandarDurantePeriodoRevisionEntrega(articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega());
 
         //Validar código duplicado
-        if (this.findByCodArt(articulo).isPresent()) {
-            throw new Exception("Ya existe un artículo con el código: " + articulo.getCodArt());
+        if (this.findByCodArt(articuloNuevo).isPresent()) {
+            throw new Exception("Ya existe un artículo con el código: " + articuloDTO.getCodArt());
         }
+
+        // Si querés asignar proveedor:
+        if (articuloDTO.getProveedorDTO() != null && articuloDTO.getProveedorDTO().getId() != null) {
+
+            Proveedor proveedor = proveedorService.findById(articuloDTO.getProveedorDTO().getId());
+            if (proveedor == null){throw new Exception("El proveedor no existe");}
+
+            articuloNuevo.setProveedorElegido(proveedor);
+
+        } else {
+            articuloNuevo.setProveedorElegido(null); // explícitamente null
+
+        }
+
         //Guardar artículo
-        return save(articulo);
+        Articulo articuloGuardado = articuloRepository.save(articuloNuevo);
+
+        return crearArticuloDTO(articuloNuevo);
     }
 
     //bajaArticulo
@@ -153,6 +181,34 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     }
 
     //Métodos auxiliares.
+
+    //crearArticuloDTO
+    private ArticuloDTO crearArticuloDTO(Articulo articulo) {
+        ArticuloDTO dto = new ArticuloDTO();
+
+        dto.setId(articulo.getId());
+        dto.setCodArt(articulo.getCodArt());
+        dto.setNomArt(articulo.getNomArt());
+        dto.setPrecioVenta(articulo.getPrecioVenta());
+        dto.setDescripcionArt(articulo.getDescripcionArt());
+        dto.setFechaHoraBajaArt(articulo.getFechaHoraBajaArt());
+        dto.setStock(articulo.getStock());
+        dto.setStockSeguridad(articulo.getStockSeguridad());
+        dto.setDemandaDiaria(articulo.getDemandaDiaria());
+        dto.setDesviacionEstandarUsoPeriodoEntrega(articulo.getDesviacionEstandarUsoPeriodoEntrega());
+        dto.setDesviacionEstandarDurantePeriodoRevisionEntrega(articulo.getDesviacionEstandarDurantePeriodoRevisionEntrega());
+
+        if (articulo.getProveedorElegido() != null) {
+            ProveedorDTO proveedorDTO = new ProveedorDTO();
+            proveedorDTO.setId(articulo.getProveedorElegido().getId());
+
+            dto.setProveedorDTO(proveedorDTO);
+        }
+
+        return dto;
+    }
+
+
 
     //comprobarOrdenCompra Pendiente (No verifica que el artículo exista)
     @Transactional

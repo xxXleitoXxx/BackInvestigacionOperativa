@@ -1,6 +1,8 @@
 package org.example.controller;
 
+import jakarta.validation.Valid;
 import org.example.controller.Bases.BaseControllerImpl;
+import org.example.dto.ArticuloDTO;
 import org.example.entity.Articulo;
 import org.example.entity.Proveedor;
 import org.example.services.clasesImp.ArticuloServiceImp;
@@ -18,35 +20,19 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
         //Métodos REST
 
         //Post
-        //Alta Articulo
+        //Alta
         @PostMapping("/altaArticulo")
-        public ResponseEntity<?> altaArticulo(@RequestBody Articulo articulo) {
-
-            // Validaciones de formato
-
-            //Código nulo, en blanco
-            if (articulo.getCodArt() == null || articulo.getCodArt().isBlank()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "El código del artículo es obligatorio."));
-            }
-
-            //Nombre nulo o en blanco
-            if (articulo.getNomArt() == null || articulo.getNomArt().isBlank()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "El nombre del artículo es obligatorio."));
-            }
-
-            //Precio de venta Mayor  a 0
-            if (articulo.getPrecioVenta() <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("error", "El precio de venta debe ser mayor a cero."));
-            }
+        public ResponseEntity<?> altaArticulo(@RequestBody @Valid ArticuloDTO dto) {
             try {
-                Articulo nuevoArticulo = servicio.altaArticulo(articulo);
+                ArticuloDTO nuevoArticulo = servicio.altaArticulo(dto); // se pasa el DTO directo
                 return ResponseEntity.status(HttpStatus.CREATED).body(nuevoArticulo);
             } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+                return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
             }
         }
 
-        //PUT
+
+    //PUT
 
         //BajaArticulo
         @PutMapping("/bajaArticulo/{id}")

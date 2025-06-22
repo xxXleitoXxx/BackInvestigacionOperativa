@@ -4,7 +4,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
-import org.example.enums.TipoLote;
 import java.time.LocalDateTime;
 
 

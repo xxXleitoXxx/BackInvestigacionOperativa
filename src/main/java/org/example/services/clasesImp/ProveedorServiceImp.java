@@ -1,7 +1,7 @@
 package org.example.services.clasesImp;
 
 import jakarta.transaction.Transactional;
-import org.example.dto.ProveedorDto;
+import org.example.dto.ProveedorDTO;
 import org.example.entity.Proveedor;
 import org.example.repository.BaseRepository;
 import org.example.repository.ProveedorRepository;
@@ -34,11 +34,11 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor,Long> impleme
         return proveedorRepository.findProveedoresActivosByArticuloId(articuloId);
     }
 
-    public List<ProveedorDto> getProveedores(){
+    public List<ProveedorDTO> getProveedores(){
         List<Proveedor> proveedors = proveedorRepository.findAll();
-        List<ProveedorDto> proveedorDtos= new ArrayList<>();
+        List<ProveedorDTO> proveedorDtos= new ArrayList<>();
         for(Proveedor p:proveedors){
-         ProveedorDto pd = new ProveedorDto();
+         ProveedorDTO pd = new ProveedorDTO();
 
             pd.setCodProv(p.getCodProv());
             pd.setNomProv(p.getNomProv());
