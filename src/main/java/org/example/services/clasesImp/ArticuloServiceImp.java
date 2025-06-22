@@ -78,7 +78,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         //Guardar artículo
         Articulo articuloGuardado = articuloRepository.save(articuloNuevo);
 
-        return crearArticuloDTO(articuloNuevo);
+        return crearArticuloDTO(articuloGuardado);
     }
 
     //bajaArticulo
