@@ -4,7 +4,6 @@ import org.example.dto.ArticuloDTO;
 import org.example.dto.ProveedorDTO;
 import org.example.entity.Articulo;
 import org.example.entity.OrdenCompra;
-import org.example.entity.OrdenCompraArticulo;
 import org.example.entity.Proveedor;
 import org.example.repository.ArticuloRepository;
 import org.example.repository.BaseRepository;
@@ -225,11 +224,10 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
         // Iterar sobre cada orden y sus artículos asociados
         for (OrdenCompra orden : ordenesNoModificables) {
-            for (OrdenCompraArticulo oca : orden.getOrdenCompraArticulo()) {
-                if (oca.getArt().getId().equals(articulo.getId())) {
+                if (orden.getArticulo().getId().equals(articulo.getId())) {
                     return true; // El artículo está en una orden no modificable (pendiente o enviada)
                 }
-            }
+
         }
         return false; // El artículo no está en ninguna orden pendiente ni enviada
     }

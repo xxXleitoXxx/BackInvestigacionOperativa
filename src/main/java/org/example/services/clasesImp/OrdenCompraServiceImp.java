@@ -18,8 +18,6 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
     @Autowired
     OrdenCompraRepository ordenCompraRepository;
     @Autowired
-    OrdenCompraArticuloRepository ordenCompraArticuloRepository;
-    @Autowired
     ArticuloRepository articuloRepository;
     @Autowired
     ProveedorRepository proveedorRepository;
@@ -29,92 +27,99 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
         this.ordenCompraRepository = ordenCompraRepository;
     }
 
-//    public Boolean mod(OrdenCompra ordenCompra) {
-//        boolean posible = false;
-//        OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
-//        if (oc.getEstadoOrdCom().getNomEOC() == "Pendiente"){
-//            posible = true;
-//        }
-//        return posible;
-//    }
-//
-//    public Boolean crear(OrdenCompra ordenCompra) {
-//        boolean PuedoCrear = true;
-//
-//        if (ordenCompra.getEstadoOrdCom().getNomEOC() != "Pendiente"){
-//            PuedoCrear = false;
-//        }
-//        for (OrdenCompraArticulo ocaI : ordenCompra.getOrdenCompraArticulo()) {
-//            Articulo art = ocaI.getArt();
-//            for (OrdenCompra oc : ordenCompraRepository.findAll()) {
-//                for (OrdenCompraArticulo oca : ordenCompraArticuloRepository.findAll()) {
-//                    if ((oca.getArt() == art) && (oc.getEstadoOrdCom().getNomEOC() != "Finalizada")) {
-//                        PuedoCrear = false;
-//                        break;
-//                    }
-//                }
-//                break;
-//            }
-//            break;
-//        }
-//        return PuedoCrear;
-//    }
-//
-//    public Boolean cancelar(OrdenCompra ordenCompra) {
-//        Boolean posible = false;
-//        OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
-//        if (oc.getEstadoOrdCom().getNomEOC() != "Pendiente"){
-//            posible = true;
-//        }
-//        return posible;
-//    }
-//
-//    public Boolean finalizar(OrdenCompra ordenCompra) {
-//
-//        Boolean posible = false;
-//        OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
-//        if (oc.getEstadoOrdCom().getNomEOC() == "Enviada"){
-//            posible = true;
-//        }
-//        return posible;
-//    }
-//
-//    public void actualizarStock(OrdenCompra ordenCompra) {
-//
-//        for (OrdenCompraArticulo oca : ordenCompra.getOrdenCompraArticulo()){
-//            int StockNuevo = oca.getArt().getStock() + oca.getCantArtPedida();
-//            oca.getArt().setStock(StockNuevo);
-//            Proveedor prov = proveedorRepository.findById(oca.getArt().getProveedorElegido().getId()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + oca.getArt().getProveedorElegido().getId()));
-//            for (ProveedorArticulo pa : prov.getProveedorArticulos()){
-//                if (pa.getArt() == oca.getArt()){
-//                    if(StockNuevo < pa.getArt().getLoteOptimo()){
-//                        ResponseEntity.status(HttpStatus.OK).body("No llegaste a tu lote optimo");
-//                    }
-//                    break;
-//                }
-//            }
-//            articuloRepository.save(oca.getArt());
-//        }
-//
-//
-//    }
-//
-//    public void crearporPeriodoFijo() {
-//
-//       for ( Articulo art : articuloRepository.findAll()){
-//
-//           if (art.getTipoLote() == TipoLote.PERIODOFIJO){
-//
-//               // crear la OC
-//
-//
-//
-//           }
-//
-//
-//        }
-//
-//    }
+    public Boolean mod(OrdenCompra ordenCompra) {
+        boolean posible = false;
+        OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
+        if (oc.getEstadoOrdCom().getNomEOC() == "Pendiente"){
+            posible = true;
+        }
+        return posible;
+    }
+
+    public Boolean crear(OrdenCompra ordenCompra) {
+        boolean PuedoCrear = true;
+
+        if (ordenCompra.getEstadoOrdCom().getNomEOC() != "Pendiente"){
+           PuedoCrear = false;
+        }
+
+            Articulo art = ordenCompra.getArticulo();
+
+            for (OrdenCompra oc : ordenCompraRepository.findAll()) {
+                    if ((ordenCompra.getArticulo() == art) && (oc.getEstadoOrdCom().getNomEOC() != "Finalizada")) {
+                        PuedoCrear = false;
+                        break;
+                    }
+
+                break;
+            }
+
+            Proveedor prov = proveedorRepository.findById(art.getProveedorElegido().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + art.getProveedorElegido().getId() ));
+            for (ProveedorArticulo pa : prov.getProveedorArticulos()){
+                if ( prov == art.getProveedorElegido()  ){
+                    PuedoCrear = true;
+                }
+            }
+
+
+
+
+
+        return PuedoCrear;
+    }
+
+    public Boolean cancelar(OrdenCompra ordenCompra) {
+        Boolean posible = false;
+        OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
+        if (oc.getEstadoOrdCom().getNomEOC() != "Pendiente"){
+            posible = true;
+        }
+        return posible;
+    }
+
+    public Boolean finalizar(OrdenCompra ordenCompra) {
+
+        Boolean posible = false;
+        OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
+        if (oc.getEstadoOrdCom().getNomEOC() == "Enviada"){
+            posible = true;
+        }
+        return posible;
+    }
+
+    public void actualizarStock(OrdenCompra ordenCompra) {
+
+            int StockNuevo = ordenCompra.getArticulo().getStock() + ordenCompra.getCantPedida();
+            Articulo articulo = articuloRepository.findById(ordenCompra.getArticulo().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + ordenCompra.getArticulo().getId()));
+            ordenCompra.getArticulo().setStock(StockNuevo);
+            Proveedor prov = proveedorRepository.findById(ordenCompra.getArticulo().getProveedorElegido().getId()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + ordenCompra.getArticulo().getProveedorElegido().getId()));
+            for (ProveedorArticulo pa : prov.getProveedorArticulos()){
+                if (pa.getArt() == ordenCompra.getArticulo()){
+                    if(StockNuevo < pa.getLoteOptimo()){
+                        ResponseEntity.status(HttpStatus.OK).body("No llegaste a tu lote optimo");
+                    }
+                    break;
+                }
+            }
+            articuloRepository.save(articulo);
+
+
+
+    }
+
+    public void crearporPeriodoFijo() {
+       for ( Articulo art : articuloRepository.findAll()){
+
+           Proveedor prov = proveedorRepository.findById(art.getProveedorElegido().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + art.getProveedorElegido().getId() ));
+           for (ProveedorArticulo pa : prov.getProveedorArticulos()){
+               if ( (pa.getArt() == art) && (pa.tipoLote == TipoLote.LOTEFIJO)   ){
+
+               }
+           }
+
+        }
+
+    }
 
     @Override
     public List<OrdenCompra> buscarOrdenCompraPorEstado(String codigoEstado) {
