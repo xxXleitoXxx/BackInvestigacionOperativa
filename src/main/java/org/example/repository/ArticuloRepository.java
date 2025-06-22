@@ -10,6 +10,9 @@ import java.util.Optional;
 @Repository
 public interface ArticuloRepository extends BaseRepository<Articulo,Long> {
 
+    //existById
+
+
     //findByCodArt
     Optional<Articulo> findByCodArt(String codArt);
 

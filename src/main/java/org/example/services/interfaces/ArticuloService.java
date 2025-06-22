@@ -5,4 +5,8 @@ import org.example.services.BaseService;
 
 
 public interface ArticuloService extends BaseService<Articulo,Long> {
+
+    boolean existsById(Long id);
+
+
 }

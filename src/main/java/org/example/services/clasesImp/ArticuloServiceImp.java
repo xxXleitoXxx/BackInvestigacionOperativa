@@ -3,11 +3,17 @@ import jakarta.transaction.Transactional;
 import org.example.dto.ArticuloDTO;
 import org.example.dto.ProveedorDTO;
 import org.example.entity.Articulo;
+import org.example.entity.OrdenCompra;
 import org.example.entity.Proveedor;
+import org.example.entity.ProveedorArticulo;
+import org.example.enums.TipoLote;
 import org.example.repository.ArticuloRepository;
 import org.example.repository.BaseRepository;
 import org.example.services.BaseServiceImpl;
+import org.example.services.EstrategiaCalculoInventario.EstrategiaCalculoInventario;
+import org.example.services.EstrategiaCalculoInventario.FabricaEstrategiaCalculoInventario;
 import org.example.services.interfaces.ArticuloService;
+import org.example.services.interfaces.ProveedorArticuloService;
 import org.example.services.interfaces.OrdenCompraService;
 import org.example.services.interfaces.ProveedorService;
 import org.springframework.stereotype.Service;
@@ -16,22 +22,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implements ArticuloService {
 
-    //Repositorio.
+    // Repositorio.
     private final ArticuloRepository articuloRepository;
 
-    //Servicios consumidos.
+    // Servicios consumidos.
     private final ProveedorService proveedorService;
     private final OrdenCompraService ordenCompraService;
+    private final ProveedorArticuloService proveedorArticuloService;
+    private final FabricaEstrategiaCalculoInventario fabricaEstrategiaCalculoInventario;
 
-    public ArticuloServiceImp(BaseRepository<Articulo, Long> baseRespository, ArticuloRepository articuloRepository, ProveedorService proveedorService, OrdenCompraService ordenCompraService) {
+    public ArticuloServiceImp(BaseRepository<Articulo, Long> baseRespository, ArticuloRepository articuloRepository, ProveedorService proveedorService, OrdenCompraService ordenCompraService, ProveedorArticuloService proveedorArticuloService, FabricaEstrategiaCalculoInventario fabricaEstrategiaCalculoInventario) {
         super(baseRespository);
         this.articuloRepository = articuloRepository;
         this.proveedorService = proveedorService;
         this.ordenCompraService = ordenCompraService;
+        this.proveedorArticuloService = proveedorArticuloService;
+        this.fabricaEstrategiaCalculoInventario = fabricaEstrategiaCalculoInventario;
     }
+
 
     //Métodos
 
@@ -99,9 +111,9 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             throw new Exception("El artículo ya fue dado de baja");
         }
 
-//        if (comprobarOrdenCompraModificable(articuloDTO.getId())) {
-//            throw new Exception("No se puede modificar el artículo porque ya se encuentra la Orden Pendiente o Enviada");
-//        }
+        if (comprobarOrdenDeCompraPendienteOEnviada(articuloDTO.getId())) {
+            throw new Exception("No se puede modificar el artículo porque ya se encuentra la Orden Pendiente o Enviada");
+        }
 
         articulo.setFechaHoraBajaArt(LocalDateTime.now());
         update(articulo.getId(), articulo);
@@ -109,15 +121,19 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         return crearArticuloDTO(articulo);
     }
 
-
-    //modificarArticulo
+    //modifcarArticulo
     @Transactional
-    public Articulo modificarArticulo(Articulo articulo, Long id) throws Exception {
+    public ArticuloDTO modificarArticulo(ArticuloDTO articuloDTO) throws Exception {
+
+        // Validar que venga el ID en el DTO
+        if (articuloDTO.getId() == null) {
+            throw new Exception("El ID del artículo es obligatorio para modificar.");
+        }
 
         // Traer artículo existente
-        Articulo articuloExistente = this.findById(id);
+        Articulo articuloExistente = this.findById(articuloDTO.getId());
 
-        // Comprobar que no haya unidades en Stock
+        // Comprobar que no haya unidades en stock
         if (articuloExistente.getStock() != 0) {
             throw new Exception("El artículo aún tiene unidades en stock");
         }
@@ -127,22 +143,90 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             throw new Exception("El artículo ya fue dado de baja");
         }
 
-        // Actualizar campos si vienen válidos
-        if (articulo.getCodArt() != null && !articulo.getCodArt().isBlank()) {
-            articuloExistente.setCodArt(articulo.getCodArt());
+        // Comprobar que no tenga órdenes de compra pendientes o enviadas
+        if (comprobarOrdenDeCompraPendienteOEnviada(articuloDTO.getId())) {
+            throw new Exception("El artículo tiene órdenes de compra pendientes o enviadas y no puede ser modificado");
         }
 
-        if (articulo.getNomArt() != null && !articulo.getNomArt().isBlank()) {
-            articuloExistente.setNomArt(articulo.getNomArt());
+        // === Actualizar campos básicos ===
+        if (articuloDTO.getCodArt() != null && !articuloDTO.getCodArt().isBlank()) {
+            articuloExistente.setCodArt(articuloDTO.getCodArt());
         }
 
-        if (articulo.getPrecioVenta() != null && articulo.getPrecioVenta() > 0) {
-            articuloExistente.setPrecioVenta(articulo.getPrecioVenta());
+        if (articuloDTO.getNomArt() != null && !articuloDTO.getNomArt().isBlank()) {
+            articuloExistente.setNomArt(articuloDTO.getNomArt());
         }
 
-        // Guardar cambios
-        return this.update(id, articuloExistente);
+        if (articuloDTO.getPrecioVenta() != null && articuloDTO.getPrecioVenta() > 0) {
+            articuloExistente.setPrecioVenta(articuloDTO.getPrecioVenta());
+        }
+
+        // === Verificar y aplicar cambios en demanda y desviaciones ===
+        Integer nuevaDemandaDiaria = articuloDTO.getDemandaDiaria();
+        Integer nuevaDesvEstandarUso = articuloDTO.getDesviacionEstandarUsoPeriodoEntrega();
+        Integer nuevaDesvEstandarRevision = articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega();
+
+        boolean cambioDemanda = nuevaDemandaDiaria != null && !nuevaDemandaDiaria.equals(articuloExistente.getDemandaDiaria());
+        boolean cambioDesvUso = nuevaDesvEstandarUso != null && !nuevaDesvEstandarUso.equals(articuloExistente.getDesviacionEstandarUsoPeriodoEntrega());
+        boolean cambioDesvRevision = nuevaDesvEstandarRevision != null && !nuevaDesvEstandarRevision.equals(articuloExistente.getDesviacionEstandarDurantePeriodoRevisionEntrega());
+
+        if (cambioDemanda || cambioDesvUso || cambioDesvRevision) {
+
+            // Validar que los tres valores estén cargados y sean válidos
+            if (nuevaDemandaDiaria == null || nuevaDemandaDiaria <= 0 ||
+                    nuevaDesvEstandarUso == null || nuevaDesvEstandarUso <= 0 ||
+                    nuevaDesvEstandarRevision == null || nuevaDesvEstandarRevision <= 0) {
+                throw new Exception("Los valores de demanda diaria y desviaciones deben ser mayores a cero si alguno cambia.");
+            }
+
+            // Setear todos los valores
+            articuloExistente.setDemandaDiaria(nuevaDemandaDiaria);
+            articuloExistente.setDesviacionEstandarUsoPeriodoEntrega(nuevaDesvEstandarUso);
+            articuloExistente.setDesviacionEstandarDurantePeriodoRevisionEntrega(nuevaDesvEstandarRevision);
+
+            // Recalcular si hay relación activa con proveedor elegido
+            Proveedor proveedorElegido = articuloExistente.getProveedorElegido(); //Arreglar esto deber ser sobre cualquier proveedor activo relacionado al articulo
+            if (proveedorElegido != null) {
+                Optional<ProveedorArticulo> provArtOpt = obtenerProveedorArticuloRelacionado(articuloExistente.getProveedorElegido().getProveedorArticulos(),articuloExistente);
+                if (provArtOpt.isPresent()) {
+                    ProveedorArticulo proveedorArticulo = provArtOpt.get();
+
+                    EstrategiaCalculoInventario estrategia = fabricaEstrategiaCalculoInventario.obtener(proveedorArticulo.getTipoLote());
+
+                    ProveedorArticulo proveedorArticuloCalculado = estrategia.calcular(proveedorArticulo);
+
+                    proveedorArticuloService.update(proveedorArticuloCalculado.getId(), proveedorArticuloCalculado);
+                    update(articuloDTO.getId(), proveedorArticuloCalculado.getArt());
+                }
+            }
+        }
+
+        // Guardar cambios y retornar DTO
+        Articulo articuloActualizado = update(articuloDTO.getId(), articuloExistente);
+        return crearArticuloDTO(articuloActualizado);
     }
+
+    @Transactional
+    public ArticuloDTO modificarParametrosInventario(ArticuloDTO articuloDTO) throws Exception {
+
+        // Validar ID
+        if (articuloDTO.getId() == null) {
+            throw new Exception("El ID del artículo es obligatorio.");
+        }
+
+        // Traer artículo existente
+        Articulo articulo = this.findById(articuloDTO.getId());
+
+        // Setear nuevos valores
+        articulo.setDemandaDiaria(articuloDTO.getDemandaDiaria());
+        articulo.setDesviacionEstandarUsoPeriodoEntrega(articuloDTO.getDesviacionEstandarUsoPeriodoEntrega());
+        articulo.setDesviacionEstandarDurantePeriodoRevisionEntrega(articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega());
+
+        // Guardar y devolver DTO
+        Articulo articuloActualizado = this.update(articulo.getId(), articulo);
+        return crearArticuloDTO(articuloActualizado);
+    }
+
 
     //listarArticulosActivos (sólo los no dados de baja)
     @Transactional
@@ -165,35 +249,81 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     //listarArticulosDadosDeBaja
     @Transactional
-    public List<Articulo> listarArticulosDadosDeBaja() {
+    public List<ArticuloDTO> listarArticulosDadosDeBaja() {
 
-        return articuloRepository.findByFechaHoraBajaArtIsNotNull();
+        List<Articulo> listaArticulosInactivos = articuloRepository.findByFechaHoraBajaArtIsNotNull();
 
+        // Crear lista para almacenar los DTOs
+        List<ArticuloDTO> listaArticulosInacctivosDTO = new ArrayList<>();
+
+        // Convertir cada Articulo a ArticuloDTO
+        for (Articulo articulo : listaArticulosInactivos) {
+            ArticuloDTO dto = crearArticuloDTO(articulo);
+            listaArticulosInacctivosDTO.add(dto);
+        }
+        return listaArticulosInacctivosDTO;
     }
 
     //listaProveedorPorArticulo
     @Transactional
-    public List<Proveedor> listarProveedoresPorArticulo(Long id) throws Exception {
+    public List<ProveedorDTO> listarProveedoresPorArticulo(ArticuloDTO articuloDTO) throws Exception {
 
         //Buscar artículo
-        Articulo articulo = this.findById(id);
+        Articulo articulo = findById(articuloDTO.getId());
         //Buscar lista de proveedores activos por artículo.
-        return proveedorService.findProveedoresActivosByArticuloId(id);
+        List<Proveedor> listaProveedoresProveedoresActivosPorArticulo = proveedorService.findProveedoresActivosByArticuloId(articuloDTO.getId());
+        // Crear lista de ProveedorDTO
+        List<ProveedorDTO> listaProveedoresProveedoresActivosPorArticuloDTO = new ArrayList<>();
+
+        for (Proveedor proveedor : listaProveedoresProveedoresActivosPorArticulo) {
+            ProveedorDTO proveedorDTO = crearProveedorDTO(proveedor);
+            listaProveedoresProveedoresActivosPorArticuloDTO.add(proveedorDTO);
+        }
+
+        return listaProveedoresProveedoresActivosPorArticuloDTO;
 
     }
 
     //listarArticulosFaltantes
     @Transactional
-    public List<Articulo> listarArticulosFaltantes() {
+    public List<ArticuloDTO> listarArticulosFaltantes() {
+        List<Articulo> articulosFaltantes = articuloRepository.findArticulosFaltantes();
 
-        return articuloRepository.findArticulosFaltantes();
+        List<ArticuloDTO> articulosFaltantesDTO = new ArrayList<>();
+        for (Articulo articulo : articulosFaltantes) {
+            ArticuloDTO dto = crearArticuloDTO(articulo);
+            articulosFaltantesDTO.add(dto);
+        }
+        return articulosFaltantesDTO;
+    }
+
+    //listarProductosAReponer. Productos de lote fijo que han alcanzado R.
+    @Transactional
+    public List<ArticuloDTO> listarProductosAReponer(){
+
+        List<ProveedorArticulo> listaProveedorArticulo = proveedorArticuloService.findByFechaHoraBajaArtProvIsNull();
+        List <Articulo> listaArticulos = new ArrayList<Articulo>();
+
+        for (ProveedorArticulo proveedorArticulo : listaProveedorArticulo){
+
+            if(proveedorArticulo.getTipoLote() == TipoLote.LOTEFIJO && proveedorArticulo.getPuntoPedido() == proveedorArticulo.getArt().getStock()){
+                listaArticulos.add(proveedorArticulo.getArt());
+            }
+        }
+
+        List<ArticuloDTO> listaDTO = new ArrayList<>();
+        for (Articulo articulo : listaArticulos) {
+            listaDTO.add(crearArticuloDTO(articulo));
+        }
+        return listaDTO;
 
     }
 
+
     //Métodos auxiliares.
 
-    //crearArticuloDTO
-    private ArticuloDTO crearArticuloDTO(Articulo articulo) {
+    //crearArticuloDTO. NO TRAE ProveedorArticuloDTO para evitar bucles
+    public ArticuloDTO crearArticuloDTO(Articulo articulo) {
         ArticuloDTO dto = new ArticuloDTO();
 
         dto.setId(articulo.getId());
@@ -218,33 +348,52 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         return dto;
     }
 
-    //comprobarOrdenCompra Pendiente (No verifica que el artículo exista)
-//    @Transactional
-//    private Boolean comprobarOrdenCompraModificable(Long id) throws Exception {
-//
-//        //Crear Articulo
-//        Articulo articulo = findById(id);
-//
-//        // Traer las órdenes de compra pendientes y enviadas
-//        List<OrdenCompra> ordenesPendientes = ordenCompraService.buscarOrdenCompraPorEstado("Pendiente");
-//        List<OrdenCompra> ordenesEnviadas = ordenCompraService.buscarOrdenCompraPorEstado("Enviado");
-//
-//        // Unir listas
-//        List<OrdenCompra> ordenesNoModificables = new ArrayList<>();
-//        ordenesNoModificables.addAll(ordenesPendientes);
-//        ordenesNoModificables.addAll(ordenesEnviadas);
-//
-//        // Iterar sobre cada orden y sus artículos asociados
-//        for (OrdenCompra orden : ordenesNoModificables) {
-//            for (OrdenCompraArticulo oca : orden.getOrdenCompraArticulo()) {
-//                if (oca.getArt().getId().equals(articulo.getId())) {
-//                    return true; // El artículo está en una orden no modificable (pendiente o enviada)
-//                }
-//            }
-//        }
-//        return false; // El artículo no está en ninguna orden pendiente ni enviada
-//    }
+    //crearProveedorDTO. NO TRAE ArticuloDTO para evitar Bucles.
+    private ProveedorDTO crearProveedorDTO(Proveedor proveedor) {
+        ProveedorDTO dto = new ProveedorDTO();
 
+        dto.setId(proveedor.getId());
+        dto.setCodProv(proveedor.getCodProv());
+        dto.setNomProv(proveedor.getNomProv());
+        dto.setDescripcionProv(proveedor.getDescripcionProv());
+        dto.setFechaHoraBajaProv(proveedor.getFechaHoraBajaProv());
+
+//        if (proveedor.getProveedorArticulos() != null && !proveedor.getProveedorArticulos().isEmpty()) {
+//            List<ProveedorArticuloDTO> listaDTO = proveedor.getProveedorArticulos().stream()
+//                    .map(this::crearProveedorArticuloDTO)
+//                    .collect(Collectors.toList());
+//            dto.setProveedorArticulos(listaDTO);
+//        }
+
+        return dto;
+    }
+
+    //comprobarOrdenCompra Pendiente (No verifica que el artículo exista)
+    @Transactional
+    private Boolean comprobarOrdenDeCompraPendienteOEnviada(Long idArticulo) {
+        // Buscar órdenes de compra con estado PENDIENTE
+        List<OrdenCompra> ordenesPendientes = ordenCompraService.buscarOrdenCompraPorEstado("PENDIENTE");
+
+        // Buscar órdenes de compra con estado ENVIADA
+        List<OrdenCompra> ordenesEnviadas = ordenCompraService.buscarOrdenCompraPorEstado("ENVIADA");
+
+        // Unir ambas listas
+        List<OrdenCompra> ordenes = new ArrayList<>();
+        ordenes.addAll(ordenesPendientes);
+        ordenes.addAll(ordenesEnviadas);
+
+        // Verificar si alguna orden corresponde al artículo dado
+        for (OrdenCompra orden : ordenes) {
+            Articulo articulo = orden.getArticulo();
+            if (articulo != null && articulo.getId().equals(idArticulo)) {
+                return true; // Existe una orden pendiente o enviada para el artículo
+            }
+        }
+
+        return false; // No se encontró ninguna
+    }
+
+    @Transactional
     private Boolean comprobarStockAgotado(Long id) throws Exception {
 
         //Crear Articulo
@@ -255,5 +404,29 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         }
         return false;
     }
+
+    //Busca un ProveedorArticulo no nulo
+    @Transactional
+    private Optional<ProveedorArticulo> obtenerProveedorArticuloRelacionado(List<ProveedorArticulo> listaProveedorArticulo, Articulo articulo) {
+
+        if (listaProveedorArticulo == null || articulo == null) return Optional.empty();
+
+        for (ProveedorArticulo pa : listaProveedorArticulo) {
+            if (pa.getFechaHoraBajaArtProv() == null &&
+                    pa.getArt() != null &&
+                    pa.getArt().getId().equals(articulo.getId())) {
+                return Optional.of(pa);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    @Transactional
+    public boolean existsById(Long id) {
+        return articuloRepository.existsById(id);
+    }
+
+
 }
 

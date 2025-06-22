@@ -1,19 +1,30 @@
 package org.example.controller;
 
+import jakarta.validation.Valid;
 import org.example.controller.Bases.BaseControllerImpl;
+import org.example.dto.ProveedorDTO;
 import org.example.entity.Proveedor;
 import org.example.services.clasesImp.ProveedorServiceImp;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping(path = "/Proveedor")
 public class ProveedorController extends BaseControllerImpl<Proveedor, ProveedorServiceImp> {
+
+
+    @PostMapping("/altaProveedor")
+    public ResponseEntity<ProveedorDTO> crearProveedor(@RequestBody @Valid ProveedorDTO proveedorDTO) {
+        try {
+            ProveedorDTO proveedorCreado = servicio.altaProveedor(proveedorDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(proveedorCreado);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // o .body(null)
+        }
+    }
+
     @Override
     @GetMapping("")
     public ResponseEntity<?> getAll() {

@@ -1,17 +1,15 @@
-package org.example.repository;
+package org.example.services.interfaces;
 
 import org.example.entity.Articulo;
 import org.example.entity.Proveedor;
 import org.example.entity.ProveedorArticulo;
-import org.springframework.stereotype.Repository;
+import org.example.services.BaseService;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
-public interface ProveedorArticuloRepository extends BaseRepository<ProveedorArticulo,Long>{
+public interface ProveedorArticuloService extends BaseService<ProveedorArticulo,Long> {
 
     List<ProveedorArticulo> findByFechaHoraBajaArtProvIsNull();
-
 
 }

@@ -3,6 +3,7 @@ package org.example.controller;
 import jakarta.validation.Valid;
 import org.example.controller.Bases.BaseControllerImpl;
 import org.example.dto.ArticuloDTO;
+import org.example.dto.ProveedorDTO;
 import org.example.entity.Articulo;
 import org.example.entity.Proveedor;
 import org.example.services.clasesImp.ArticuloServiceImp;
@@ -46,13 +47,23 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
     }
 
     //ModificarArticulo
-    @PutMapping("/modificarArticulo/{id}")
-    public ResponseEntity<?> modificarArticulo(@RequestBody Articulo articulo, @PathVariable Long id) {
+    @PutMapping("/modificarArticulo")
+    public ResponseEntity<?> modificarArticulo(@RequestBody @Valid ArticuloDTO articulo) {
         try {
-            Articulo actualizado = servicio.modificarArticulo(articulo, id);
+            ArticuloDTO actualizado = servicio.modificarArticulo(articulo);
             return ResponseEntity.ok(actualizado);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/modificar-parametros-inventario")
+    public ResponseEntity<ArticuloDTO> modificarParametrosInventario(@RequestBody @Valid ArticuloDTO articuloDTO) {
+        try {
+            ArticuloDTO articuloModificado = servicio.modificarParametrosInventario(articuloDTO);
+            return ResponseEntity.ok(articuloModificado);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
@@ -74,7 +85,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
     @GetMapping("/articulosDadosDeBaja")
     public ResponseEntity<?> listarArticulosDadosDeBaja() {
         try {
-            List<Articulo> dadosDeBaja = servicio.listarArticulosDadosDeBaja();
+            List<ArticuloDTO> dadosDeBaja = servicio.listarArticulosDadosDeBaja();
             return ResponseEntity.ok(dadosDeBaja);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -83,10 +94,10 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
     }
 
     //listarProveedoresActivosPorArticulo
-    @GetMapping("/{id}/proveedores")
-    public ResponseEntity<?> listarProveedoresActivosPorArticulo(@PathVariable Long id) {
+    @GetMapping("/proveedoresPorArticlo")
+    public ResponseEntity<?> listarProveedoresActivosPorArticulo(@RequestBody @Valid ArticuloDTO articuloDTO) {
         try {
-            List<Proveedor> proveedores = servicio.listarProveedoresPorArticulo(id);
+            List<ProveedorDTO> proveedores = servicio.listarProveedoresPorArticulo(articuloDTO);
             return ResponseEntity.ok(proveedores);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -98,13 +109,20 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
     @GetMapping("/articulosFaltantes")
     public ResponseEntity<?> listarProductosFaltantes() {
         try {
-            List<Articulo> articulosFaltantes = servicio.listarArticulosFaltantes();
+            List<ArticuloDTO> articulosFaltantes = servicio.listarArticulosFaltantes();
             return ResponseEntity.ok(articulosFaltantes);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"error\": \"No se pudo obtener la lista de artículos faltantes: " + e.getMessage() + "\"}");
         }
     }
+
+    @GetMapping("/productosAReponer")
+    public ResponseEntity<List<ArticuloDTO>> listarProductosAReponer() {
+        List<ArticuloDTO> listaDTO = servicio.listarProductosAReponer();
+        return ResponseEntity.ok(listaDTO);
+    }
+
 
 
 }

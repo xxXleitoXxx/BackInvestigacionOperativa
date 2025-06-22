@@ -1,0 +1,50 @@
+package org.example.services.EstrategiaCalculoInventario;
+import org.example.entity.ProveedorArticulo;
+import org.example.enums.TipoLote;
+import org.springframework.stereotype.Service;
+
+@Service
+public class EstrategiaCalculoInventarioLoteFijo implements EstrategiaCalculoInventario {
+    @Override
+    public ProveedorArticulo calcular(ProveedorArticulo proveedorArticulo) {
+
+        //Variables para cálculo del lote óptimo o punto para volver a pedir R.
+
+        int d = proveedorArticulo.getArt().getDemandaDiaria(); //Demanda diaria
+        int L = proveedorArticulo.getDemoraEntrega(); //Demora de entrega
+        int z; //Números de desvios estandar respecto a la media.
+        if(proveedorArticulo.getNivelDeServicio() == 85){ z = 1;} else { z=2;}
+        int o = proveedorArticulo.getArt().getDesviacionEstandarUsoPeriodoEntrega(); //Desvio Estandar.
+
+        //Calcular Stock de seguridad y punto pedido R.
+
+        int stockSeguridad = z*o;
+        int R = d*L + stockSeguridad;
+
+        //Calcular cantidadOptima y costo general inventario.
+
+        int D = d*365; //Demanda anual.
+        Float C = proveedorArticulo.getCostoPedido(); //Costo por Unidad
+        Float H = proveedorArticulo.getCostoMantenimiento(); //Costo de mantenimiento
+        Float S = proveedorArticulo.getCostoPedido();   //Costo de pedido
+        int Q = (int) Math.sqrt((2.0 * D * S) / H);
+        Float CT = D*C + (D/Q)*S +(Q/2)*H;
+
+        //Setear nuevos valores al ProveedorArticulo.
+
+        proveedorArticulo.setPuntoPedido(R);
+        proveedorArticulo.setLoteOptimo(Q);
+        proveedorArticulo.setCostoGeneralInventario(CT);
+
+        //Setear nuevos valores al Articulo.
+
+        proveedorArticulo.getArt().setStockSeguridad(stockSeguridad);
+
+        return proveedorArticulo;
+    }
+
+    @Override
+    public TipoLote getTipoLote() {
+        return TipoLote.LOTEFIJO;
+    }
+}
