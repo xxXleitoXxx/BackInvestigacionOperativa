@@ -129,9 +129,9 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         Articulo articuloExistente = this.findById(articuloDTO.getId());
 
         // Comprobar que no haya unidades en stock
-        if (articuloExistente.getStock() != 0) {
-            throw new Exception("El artículo aún tiene unidades en stock");
-        }
+//       // if (articuloExistente.getStock() != 0) {
+//            throw new Exception("El artículo aún tiene unidades en stock");
+//        }
 
         // Comprobar que no fue dado de baja anteriormente
         if (articuloExistente.getFechaHoraBajaArt() != null) {
