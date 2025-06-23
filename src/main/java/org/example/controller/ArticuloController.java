@@ -35,14 +35,15 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
     //PUT
 
     //BajaArticulo
+
     @PutMapping("/bajaArticulo")
     public ResponseEntity<?> bajaArticulo(@RequestBody @Valid ArticuloDTO articuloDTO){
         try{
             ArticuloDTO articuloRetornoDTO = servicio.bajaArticulo(articuloDTO);
             return ResponseEntity.status(HttpStatus.OK).body(articuloRetornoDTO);
+
         } catch (Exception e) {
-            // Manejo de excepciones, puedes ser más específico si es necesario
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo dar de baja el artículo: " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -53,7 +54,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
             ArticuloDTO actualizado = servicio.modificarArticulo(articulo);
             return ResponseEntity.ok(actualizado);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
