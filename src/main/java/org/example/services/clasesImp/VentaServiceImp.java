@@ -7,6 +7,8 @@ import org.example.services.BaseService;
 import org.example.services.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Service
@@ -78,7 +80,7 @@ public class VentaServiceImp extends BaseServiceImpl <Venta,Long> implements Bas
                 long idp = art1.getProveedorElegido().getId();
                 Proveedor prov = proveedorRepository.findById(idp).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + idp));
                 oc.setProv(art1.getProveedorElegido());
-                Date fechaactual = new Date() ;
+                LocalDateTime fechaactual =  LocalDateTime.now() ;
                 oc.setFechaPedidoOrdCom(fechaactual);
                 int demora = 1 ;
                 int loteoptimo = 0;
@@ -89,7 +91,8 @@ public class VentaServiceImp extends BaseServiceImpl <Venta,Long> implements Bas
                         break;
                     }
                 }
-                Date nuevaFecha = new Date(fechaactual.getTime() + ( demora * 86400000  ));
+                LocalDateTime nuevaFecha = LocalDateTime.now();
+                nuevaFecha.plusDays(demora);
                 oc.setFechaLlegadaOrdCom(nuevaFecha);
                 //buscar al crear los Estados en la base de datos
                 long idoc = 1;

@@ -31,6 +31,7 @@ public class Articulo extends BaseEntity{
     private Float precioVenta;
     private String descripcionArt;
     private LocalDateTime fechaHoraBajaArt;
+    private LocalDateTime diaDePedido;
 
     //Atributos para cálculo de inventario
     @PositiveOrZero(message = "El stock debe ser mayor o igual a cero.") // Modificado para permitir 0

@@ -3,6 +3,7 @@ package org.example.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,9 +16,8 @@ import java.util.List;
 
 public class OrdenCompra extends BaseEntity{
 
-    private String codOrdCom;
-    private Date fechaLlegadaOrdCom;
-    private Date fechaPedidoOrdCom;
+    private LocalDateTime fechaLlegadaOrdCom;
+    private LocalDateTime fechaPedidoOrdCom;
     private float montoTotalOrdCom;
     private int cantPedida;
 
