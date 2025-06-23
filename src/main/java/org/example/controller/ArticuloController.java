@@ -57,7 +57,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
         }
     }
 
-    @PutMapping("/modificar-parametros-inventario")
+    @PutMapping("/modificarParametrosInventario")
     public ResponseEntity<ArticuloDTO> modificarParametrosInventario(@RequestBody @Valid ArticuloDTO articuloDTO) {
         try {
             ArticuloDTO articuloModificado = servicio.modificarParametrosInventario(articuloDTO);

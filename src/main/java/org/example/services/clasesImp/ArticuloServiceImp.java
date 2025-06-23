@@ -47,12 +47,6 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     //Métodos
 
-    //findByCodArt
-    @Transactional
-    public Optional<Articulo> findByCodArt(String codArt) {
-        return articuloRepository.findByCodArt(codArt);
-    }
-
     //alta Artículo
     @Transactional
     public ArticuloDTO altaArticulo(ArticuloDTO articuloDTO) throws Exception {
@@ -206,6 +200,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         return crearArticuloDTO(articuloActualizado);
     }
 
+
     @Transactional
     public ArticuloDTO modificarParametrosInventario(ArticuloDTO articuloDTO) throws Exception {
 
@@ -323,7 +318,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     //Métodos auxiliares.
 
     //crearArticuloDTO. NO TRAE ProveedorArticuloDTO para evitar bucles
-    public ArticuloDTO crearArticuloDTO(Articulo articulo) {
+    private ArticuloDTO crearArticuloDTO(Articulo articulo) {
         ArticuloDTO dto = new ArticuloDTO();
 
         dto.setId(articulo.getId());
@@ -419,6 +414,12 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             }
         }
         return Optional.empty();
+    }
+
+    //findByCodArt
+    @Transactional
+    public Optional<Articulo> findByCodArt(String codArt) {
+        return articuloRepository.findByCodArt(codArt);
     }
 
     @Override
