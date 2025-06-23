@@ -18,8 +18,6 @@ import org.example.services.interfaces.OrdenCompraService;
 import org.example.services.interfaces.ProveedorService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -109,7 +107,7 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
 
     //modificarProveedor
     @Transactional
-    public List<ProveedorDTO> modificarProveedor (ProveedorDTO proveedorDTO) throws  Exception{
+    public ProveedorDTO modificarProveedor (ProveedorDTO proveedorDTO) throws  Exception{
 
         //Buscar proveedor
         Proveedor proveedorExistente = findById(proveedorDTO.getId());
@@ -138,14 +136,15 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         }
 
         //Modificar atributos básicos
-        proveedorExistente.setCodProv(proveedorDTO.getCodProv());
         proveedorExistente.setNomProv(proveedorDTO.getNomProv());
         proveedorExistente.setDescripcionProv(proveedorDTO.getDescripcionProv());
 
         //Ver atributos avanzados.
 
 
-       return null;
+       Proveedor proveedorModficado = update(proveedorExistente.getId(),proveedorExistente);
+
+       return crearProveedorDTO(proveedorModficado);
 
     }
 
@@ -213,7 +212,6 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
 
 
      }
-
 
     @Override
     @Transactional
@@ -344,4 +342,7 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
 
         return false; // No se encontró ninguna
     }
+
+
+
 }

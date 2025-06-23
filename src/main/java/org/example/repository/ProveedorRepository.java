@@ -1,6 +1,7 @@
 package org.example.repository;
 
 import org.example.entity.Proveedor;
+import org.example.entity.ProveedorArticulo;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,4 +19,7 @@ public interface ProveedorRepository extends BaseRepository<Proveedor,Long>{
     @Query("SELECT DISTINCT p FROM Proveedor p JOIN p.proveedorArticulos pa WHERE pa.art.id = :articuloId AND p.fechaHoraBajaProv IS NULL")
     List<Proveedor> findProveedoresActivosByArticuloId(@Param("articuloId") Long articuloId);
 
+
+
 }
+

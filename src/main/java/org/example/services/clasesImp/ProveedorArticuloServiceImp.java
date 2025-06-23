@@ -1,9 +1,5 @@
 package org.example.services.clasesImp;
-
-
 import jakarta.transaction.Transactional;
-import org.example.entity.Articulo;
-import org.example.entity.Proveedor;
 import org.example.entity.ProveedorArticulo;
 import org.example.repository.BaseRepository;
 import org.example.repository.ProveedorArticuloRepository;
@@ -34,4 +30,13 @@ public class ProveedorArticuloServiceImp extends BaseServiceImpl <ProveedorArtic
     public List<ProveedorArticulo> findByFechaHoraBajaArtProvIsNull() {
         return proveedorArticuloRepository.findByFechaHoraBajaArtProvIsNull();
     }
+
+    //buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo
+    @Override
+    @Transactional
+    public  Optional<ProveedorArticulo> buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(Long idProveedor, Long idArticulo){
+        return proveedorArticuloRepository.buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(idProveedor,idArticulo);
+    }
+
+
 }

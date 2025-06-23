@@ -11,6 +11,7 @@ import org.example.repository.ArticuloRepository;
 import org.example.repository.BaseRepository;
 import org.example.services.BaseServiceImpl;
 import org.example.services.EstrategiaCalculoInventario.EstrategiaCalculoInventario;
+import org.example.services.EstrategiaCalculoInventario.EstrategiaCalculoInventarioPeriodoFijo;
 import org.example.services.EstrategiaCalculoInventario.FabricaEstrategiaCalculoInventario;
 import org.example.services.interfaces.ArticuloService;
 import org.example.services.interfaces.ProveedorArticuloService;
@@ -67,7 +68,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         articuloNuevo.setDesviacionEstandarUsoPeriodoEntrega(articuloDTO.getDesviacionEstandarUsoPeriodoEntrega());
         articuloNuevo.setDesviacionEstandarDurantePeriodoRevisionEntrega(articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega());
 
-        // Si querés asignar proveedor:
+        // Si se quiere asignar un proveedor.
         if (articuloDTO.getProveedorDTO() != null && articuloDTO.getProveedorDTO().getId() != null) {
 
             Proveedor proveedor = proveedorService.findById(articuloDTO.getProveedorDTO().getId());
@@ -142,62 +143,50 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             throw new Exception("El artículo tiene órdenes de compra pendientes o enviadas y no puede ser modificado");
         }
 
-        // === Actualizar campos básicos ===
-        if (articuloDTO.getCodArt() != null && !articuloDTO.getCodArt().isBlank()) {
-            articuloExistente.setCodArt(articuloDTO.getCodArt());
-        }
-
+        // Actualizar campos básicos
         if (articuloDTO.getNomArt() != null && !articuloDTO.getNomArt().isBlank()) {
             articuloExistente.setNomArt(articuloDTO.getNomArt());
         }
-
         if (articuloDTO.getPrecioVenta() != null && articuloDTO.getPrecioVenta() > 0) {
             articuloExistente.setPrecioVenta(articuloDTO.getPrecioVenta());
         }
 
-        // === Verificar y aplicar cambios en demanda y desviaciones ===
-        Integer nuevaDemandaDiaria = articuloDTO.getDemandaDiaria();
-        Integer nuevaDesvEstandarUso = articuloDTO.getDesviacionEstandarUsoPeriodoEntrega();
-        Integer nuevaDesvEstandarRevision = articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega();
+        // Verificar si se quiere cambiar el proveedor predeterminado.
+        if (articuloDTO.getProveedorDTO() != null && articuloDTO.getProveedorDTO().getId() != null) {
 
-        boolean cambioDemanda = nuevaDemandaDiaria != null && !nuevaDemandaDiaria.equals(articuloExistente.getDemandaDiaria());
-        boolean cambioDesvUso = nuevaDesvEstandarUso != null && !nuevaDesvEstandarUso.equals(articuloExistente.getDesviacionEstandarUsoPeriodoEntrega());
-        boolean cambioDesvRevision = nuevaDesvEstandarRevision != null && !nuevaDesvEstandarRevision.equals(articuloExistente.getDesviacionEstandarDurantePeriodoRevisionEntrega());
+            Proveedor nuevoProveedorElegido = proveedorService.findById(articuloDTO.getProveedorDTO().getId());
 
-        if (cambioDemanda || cambioDesvUso || cambioDesvRevision) {
-
-            // Validar que los tres valores estén cargados y sean válidos
-            if (nuevaDemandaDiaria == null || nuevaDemandaDiaria <= 0 ||
-                    nuevaDesvEstandarUso == null || nuevaDesvEstandarUso <= 0 ||
-                    nuevaDesvEstandarRevision == null || nuevaDesvEstandarRevision <= 0) {
-                throw new Exception("Los valores de demanda diaria y desviaciones deben ser mayores a cero si alguno cambia.");
+            if (nuevoProveedorElegido == null) {
+                throw new Exception("El proveedor especificado no existe.");
             }
 
-            // Setear todos los valores
-            articuloExistente.setDemandaDiaria(nuevaDemandaDiaria);
-            articuloExistente.setDesviacionEstandarUsoPeriodoEntrega(nuevaDesvEstandarUso);
-            articuloExistente.setDesviacionEstandarDurantePeriodoRevisionEntrega(nuevaDesvEstandarRevision);
-
-            // Recalcular si hay relación activa con proveedor elegido
-            Proveedor proveedorElegido = articuloExistente.getProveedorElegido(); //Arreglar esto deber ser sobre cualquier proveedor activo relacionado al articulo
-            if (proveedorElegido != null) {
-                Optional<ProveedorArticulo> provArtOpt = obtenerProveedorArticuloRelacionado(articuloExistente.getProveedorElegido().getProveedorArticulos(),articuloExistente);
-                if (provArtOpt.isPresent()) {
-                    ProveedorArticulo proveedorArticulo = provArtOpt.get();
-
-                    EstrategiaCalculoInventario estrategia = fabricaEstrategiaCalculoInventario.obtener(proveedorArticulo.getTipoLote());
-
-                    ProveedorArticulo proveedorArticuloCalculado = estrategia.calcular(proveedorArticulo);
-
-                    proveedorArticuloService.update(proveedorArticuloCalculado.getId(), proveedorArticuloCalculado);
-                    update(articuloDTO.getId(), proveedorArticuloCalculado.getArt());
-                }
+            if (nuevoProveedorElegido.getFechaHoraBajaProv() != null){
+                throw new Exception("El proveedor ya fue dado de baja");
             }
+
+            //Buscar instancia de ProveedorArticulo asociada al articulo y al proveedor. Tiene que estar activa.
+            Optional<ProveedorArticulo> proveedorArticuloOptional = proveedorArticuloService.buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(nuevoProveedorElegido.getId(),articuloExistente.getId());
+
+            if (proveedorArticuloOptional.isEmpty()){
+                throw new Exception("El proveedor elegido no trabaja con este artículo");
+            }
+
+            //Recalcular valores al ingresar el nuevo Proveedor.
+            EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(proveedorArticuloOptional.get().tipoLote);
+            estrategiaCalculoInventario.calcular(proveedorArticuloOptional.get());
+
+            // Si pasa la validación, se asigna el proveedor
+            articuloExistente.setProveedorElegido(nuevoProveedorElegido);
+
         }
 
-        // Guardar cambios y retornar DTO
-        Articulo articuloActualizado = update(articuloDTO.getId(), articuloExistente);
-        return crearArticuloDTO(articuloActualizado);
+        //Guardar el nuevo articulo
+
+        Articulo articuloModificado = update(articuloExistente.getId(), articuloExistente);
+
+        return crearArticuloDTO(articuloModificado);
+
+
     }
 
 
@@ -315,7 +304,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     }
 
 
-    //Métodos auxiliares.
+    //Métodos auxiliares. -----------------------------------------------------------------------------------------------------------------------------
 
     //crearArticuloDTO. NO TRAE ProveedorArticuloDTO para evitar bucles
     private ArticuloDTO crearArticuloDTO(Articulo articulo) {

@@ -12,4 +12,7 @@ public interface ProveedorArticuloService extends BaseService<ProveedorArticulo,
 
     List<ProveedorArticulo> findByFechaHoraBajaArtProvIsNull();
 
+      //buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo
+      Optional<ProveedorArticulo> buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(Long idProveedor, Long idArticulo);
+
 }
