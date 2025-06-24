@@ -11,12 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping(path = "/Proveedor")
 public class ProveedorController extends BaseControllerImpl<Proveedor, ProveedorServiceImp> {
-
 
     //Post
 
@@ -33,7 +33,7 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
 
     //bajaProveedor
     @PutMapping("/bajaProveedor")
-    public ResponseEntity<?> bajaProveedor(@RequestBody ProveedorDTO proveedorDTO) {
+    public ResponseEntity<?> bajaProveedor(@RequestBody @Valid ProveedorDTO proveedorDTO) {
         try {
             ProveedorDTO proveedorBaja = servicio.bajaProveedor(proveedorDTO);
             return ResponseEntity.ok(proveedorBaja);
@@ -42,9 +42,17 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
         }
     }
 
+    @PutMapping("/modificarProveedor")
+    public ResponseEntity<?> modificarProveedor(@RequestBody @Valid ProveedorDTO proveedorDTO) {
+        try {
+            ProveedorDTO proveedorActualizado = servicio.modificarProveedor(proveedorDTO);
+            return ResponseEntity.ok(proveedorActualizado);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
 
     //Get
-
     //listarArticulosPorProveedor
     @PostMapping("/listarArticulosPorProveedor")
     public ResponseEntity<?> listarArticulosPorProveedor(@RequestBody @Valid ProveedorDTO proveedorDTO) {

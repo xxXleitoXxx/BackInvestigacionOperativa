@@ -41,6 +41,8 @@ public class EstrategiaCalculoInventarioPeriodoFijo implements EstrategiaCalculo
         proveedorArticulo.setCantidadAPedir(q);
         proveedorArticulo.setCostoGeneralInventario(CT);
 
+
+
         //Setear nuevos valores al Articulo.
 
         proveedorArticulo.getArt().setStockSeguridad(stockSeguridad);
