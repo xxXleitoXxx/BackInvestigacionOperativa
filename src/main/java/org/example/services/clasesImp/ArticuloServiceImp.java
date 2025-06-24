@@ -189,7 +189,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     }
 
-
+    //modificarParámetrosInventario
     @Transactional
     public ArticuloDTO modificarParametrosInventario(ArticuloDTO articuloDTO) throws Exception {
 
@@ -210,7 +210,6 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         Articulo articuloActualizado = this.update(articulo.getId(), articulo);
         return crearArticuloDTO(articuloActualizado);
     }
-
 
     //listarArticulosActivos (sólo los no dados de baja)
     @Transactional
@@ -303,6 +302,17 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     }
 
+    //listarTodos
+    @Transactional
+    public List<ArticuloDTO> obtenerTodos() throws Exception {
+        List<Articulo> todosLosArticulos = findAll();
+        List<ArticuloDTO> todosLosArticulosDTO = new ArrayList<>();
+        for (Articulo articulo : todosLosArticulos){
+            todosLosArticulosDTO.add(crearArticuloDTO(articulo));
+        }
+        return todosLosArticulosDTO;
+    }
+
 
     //Métodos auxiliares. -----------------------------------------------------------------------------------------------------------------------------
 
@@ -328,7 +338,6 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
             dto.setProveedorDTO(proveedorDTO);
         }
-
         return dto;
     }
 

@@ -25,4 +25,9 @@ public interface ArticuloRepository extends BaseRepository<Articulo,Long> {
     //findArticulosFaltantes
     @Query("SELECT a FROM Articulo a WHERE a.stock <= a.stockSeguridad AND a.fechaHoraBajaArt IS NULL")
     List<Articulo> findArticulosFaltantes();
+
+    @Query("SELECT a FROM Articulo a")
+    List<Articulo> findAllArticulos();
+
+
 }

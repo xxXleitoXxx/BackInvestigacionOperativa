@@ -1,5 +1,4 @@
 package org.example.services.clasesImp;
-
 import jakarta.transaction.Transactional;
 import org.example.dto.ArticuloDTO;
 import org.example.dto.ProveedorArticuloDTO;
@@ -15,6 +14,7 @@ import org.example.services.EstrategiaCalculoInventario.EstrategiaCalculoInventa
 import org.example.services.EstrategiaCalculoInventario.FabricaEstrategiaCalculoInventario;
 import org.example.services.interfaces.ArticuloService;
 import org.example.services.interfaces.OrdenCompraService;
+import org.example.services.interfaces.ProveedorArticuloService;
 import org.example.services.interfaces.ProveedorService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -31,9 +31,15 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
     private final ArticuloService articuloService;
     private final FabricaEstrategiaCalculoInventario fabricaEstrategiaCalculoInventario;
     private final OrdenCompraService ordenCompraService;
+    private final ProveedorArticuloService proveedorArticuloService;
 
-    public ProveedorServiceImp(BaseRepository<Proveedor, Long> baseRepository, ProveedorRepository proveedorRepository, @Lazy ArticuloService articuloService, FabricaEstrategiaCalculoInventario fabricaEstrategiaCalculoInventario, OrdenCompraService ordenCompraService) {
-        super(baseRepository); this.proveedorRepository = proveedorRepository; this.articuloService = articuloService; this.fabricaEstrategiaCalculoInventario = fabricaEstrategiaCalculoInventario; this.ordenCompraService = ordenCompraService;
+    public ProveedorServiceImp(BaseRepository<Proveedor, Long> baseRepository, ProveedorRepository proveedorRepository, @Lazy ArticuloService articuloService, FabricaEstrategiaCalculoInventario fabricaEstrategiaCalculoInventario, OrdenCompraService ordenCompraService, ProveedorArticuloService proveedorArticuloService) {
+        super(baseRepository);
+        this.proveedorRepository = proveedorRepository;
+        this.articuloService = articuloService;
+        this.fabricaEstrategiaCalculoInventario = fabricaEstrategiaCalculoInventario;
+        this.ordenCompraService = ordenCompraService;
+        this.proveedorArticuloService = proveedorArticuloService;
     }
 
 
@@ -53,9 +59,9 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
             throw new Exception("Debe seleccionar al menos un artículo.");
         }
 
-        // Validar cada ProveedorArticulo y que su Articulo exista
+        // Validar que para cada ProveedorArticulo, su Articulo exista.
         for (ProveedorArticuloDTO paDTO : proveedorDTO.getProveedorArticulos()) {
-            if (paDTO.getArticuloDTO() == null || paDTO.getArticuloDTO().getId() == null) {
+            if (paDTO.getArticuloDTO() == null ) {
                 throw new Exception("Cada ProveedorArticulo debe tener un Artículo válido.");
             }
             if (!articuloService.existsById(paDTO.getArticuloDTO().getId())) {
@@ -86,7 +92,6 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
             pa.setCostoPedido(paDTO.getCostoPedido());
             pa.setCostoMantenimiento(paDTO.getCostoMantenimiento());
             pa.setPeriodoRevision(paDTO.getPeriodoRevision());
-
             pa.setTipoLote(paDTO.getTipoLote());
 
             //Aplicar estrategia de cálculo según tipo de lote
@@ -104,7 +109,6 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         return crearProveedorDTO(proveedorGuardado);
     }
 
-
     //modificarProveedor
     @Transactional
     public ProveedorDTO modificarProveedor (ProveedorDTO proveedorDTO) throws  Exception{
@@ -114,12 +118,12 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
 
         //Ver si existe
         if (proveedorExistente == null){
-            new Exception("El proveedor no existe");
+            throw new  Exception("El proveedor no existe");
         }
 
         //Fue dado de baja antes
         if (proveedorExistente.getFechaHoraBajaProv() != null){
-            new Exception("El proveedor ya fue dado de baja");
+            throw new  Exception("El proveedor ya fue dado de baja");
         }
 
         // Validar código único
@@ -128,10 +132,9 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         }
 
         //Comprobar Órdenes de Compra pendientes o Enviadas.
-
         for(ProveedorArticulo pa :proveedorExistente.getProveedorArticulos()){
-            if (pa.getArt().getProveedorElegido().equals(proveedorExistente) ||comprobarOrdenDeCompraPendienteOEnviada(pa.getArt().getId())){
-                throw new Exception("No se puede moficar");
+            if (pa.getArt().getProveedorElegido().equals(proveedorExistente) || comprobarOrdenDeCompraPendienteOEnviada(pa.getArt().getId())){
+                throw new Exception("No se puede moficar, existen órdenes de compra pendietes o enviadas.");
             }
         }
 
@@ -139,7 +142,15 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         proveedorExistente.setNomProv(proveedorDTO.getNomProv());
         proveedorExistente.setDescripcionProv(proveedorDTO.getDescripcionProv());
 
-        //Ver atributos avanzados.
+        //Revisar atributos avanzados.
+        List<ProveedorArticulo> proveedorArticuloExistente = proveedorExistente.getProveedorArticulos();
+
+        //Tienes que hacer lo siguiente, debes comprobar que estos proveedorArticulo existen.
+        //En caso de que no existan, quiere decir que se quiere cargar un articulo, no necesariamente es un error.
+            //Tienes que agarrar a cada entidad ProveedorArticuloDTO con su correspondiente ProveedorExisten y setear los cambios.
+        //En caso de no existir, ProveedorArticulo, revisar si ProveedorArticuloDTO viene con un  artículo.
+
+
 
 
        Proveedor proveedorModficado = update(proveedorExistente.getId(),proveedorExistente);
@@ -226,17 +237,17 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         return proveedorRepository.findProveedoresActivosByArticuloId(articuloId);
     }
 
-    public List<ProveedorDTO> getProveedores(){
-        List<Proveedor> proveedors = proveedorRepository.findAll();
-        List<ProveedorDTO> proveedorDtos= new ArrayList<>();
-        for(Proveedor p:proveedors){
-         ProveedorDTO pd = new ProveedorDTO();
+    @Transactional
+    public List<ProveedorDTO> obtenerTodosLosProveedores(){
 
-            pd.setCodProv(p.getCodProv());
-            pd.setNomProv(p.getNomProv());
-            proveedorDtos.add(pd);
+        List<Proveedor> proveedores = proveedorRepository.findAll();
+        List<ProveedorDTO> proveedorDTOs= new ArrayList<>();
+        for (Proveedor proveedor : proveedores){
+
+            proveedorDTOs.add(crearProveedorDTO(proveedor));
+
         }
-        return proveedorDtos;
+        return proveedorDTOs;
     }
 
 
@@ -261,10 +272,8 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         if (articulo.getProveedorElegido() != null) {
             ProveedorDTO proveedorDTO = new ProveedorDTO();
             proveedorDTO.setId(articulo.getProveedorElegido().getId());
-
             dto.setProveedorDTO(proveedorDTO);
         }
-
         return dto;
     }
 
@@ -343,6 +352,17 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         return false; // No se encontró ninguna
     }
 
+    //crearProveedorDTO
+    public ProveedorDTO crearProveedorDTOSinPA(Proveedor proveedor) {
+        ProveedorDTO dto = new ProveedorDTO();
 
+        dto.setId(proveedor.getId());
+        dto.setCodProv(proveedor.getCodProv());
+        dto.setNomProv(proveedor.getNomProv());
+        dto.setDescripcionProv(proveedor.getDescripcionProv());
+        dto.setFechaHoraBajaProv(proveedor.getFechaHoraBajaProv());
+
+        return dto;
+    }
 
 }

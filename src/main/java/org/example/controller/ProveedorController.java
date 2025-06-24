@@ -22,7 +22,7 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
 
     //altaProveedor
     @PostMapping("/altaProveedor")
-    public ResponseEntity<ProveedorDTO> crearProveedor(@RequestBody  ProveedorDTO proveedorDTO) {
+    public ResponseEntity<?> crearProveedor(@RequestBody  ProveedorDTO proveedorDTO) {
         try {
             ProveedorDTO proveedorCreado = servicio.altaProveedor(proveedorDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(proveedorCreado);
@@ -33,7 +33,7 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
 
     //bajaProveedor
     @PutMapping("/bajaProveedor")
-    public ResponseEntity<ProveedorDTO> bajaProveedor(@RequestBody ProveedorDTO proveedorDTO) {
+    public ResponseEntity<?> bajaProveedor(@RequestBody ProveedorDTO proveedorDTO) {
         try {
             ProveedorDTO proveedorBaja = servicio.bajaProveedor(proveedorDTO);
             return ResponseEntity.ok(proveedorBaja);
@@ -47,7 +47,7 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
 
     //listarArticulosPorProveedor
     @PostMapping("/listarArticulosPorProveedor")
-    public ResponseEntity<List<ArticuloDTO>> listarArticulosPorProveedor(@RequestBody @Valid ProveedorDTO proveedorDTO) {
+    public ResponseEntity<?> listarArticulosPorProveedor(@RequestBody @Valid ProveedorDTO proveedorDTO) {
         try {
             List<ArticuloDTO> articulos = servicio.listarArticulosPorProveedor(proveedorDTO);
             return ResponseEntity.ok(articulos);
@@ -56,14 +56,13 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
         }
     }
 
-
     @Override
     @GetMapping("")
     public ResponseEntity<?> getAll() {
         try {
             //Si el status da como respuesta "ok" nos da un 200
             //Body lo convierte a Json
-            return ResponseEntity.status(HttpStatus.OK).body(servicio.getProveedores());
+            return ResponseEntity.status(HttpStatus.OK).body(servicio.obtenerTodosLosProveedores());
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\" Error\"}");
         }
