@@ -27,7 +27,7 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
             ProveedorDTO proveedorCreado = servicio.altaProveedor(proveedorDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(proveedorCreado);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // o .body(null)
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -38,7 +38,7 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
             ProveedorDTO proveedorBaja = servicio.bajaProveedor(proveedorDTO);
             return ResponseEntity.ok(proveedorBaja);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -48,10 +48,9 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
             ProveedorDTO proveedorActualizado = servicio.modificarProveedor(proveedorDTO);
             return ResponseEntity.ok(proveedorActualizado);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-
     //Get
     //listarArticulosPorProveedor
     @PostMapping("/listarArticulosPorProveedor")
@@ -59,8 +58,8 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
         try {
             List<ArticuloDTO> articulos = servicio.listarArticulosPorProveedor(proveedorDTO);
             return ResponseEntity.ok(articulos);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -71,8 +70,8 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
             //Si el status da como respuesta "ok" nos da un 200
             //Body lo convierte a Json
             return ResponseEntity.status(HttpStatus.OK).body(servicio.obtenerTodosLosProveedores());
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\" Error\"}");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
