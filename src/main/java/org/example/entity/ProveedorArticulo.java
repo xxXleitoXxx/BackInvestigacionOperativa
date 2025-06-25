@@ -1,4 +1,5 @@
 package org.example.entity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
-
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ProveedorArticulo extends BaseEntity{
 
     private Date fechaHoraBajaArtProv;

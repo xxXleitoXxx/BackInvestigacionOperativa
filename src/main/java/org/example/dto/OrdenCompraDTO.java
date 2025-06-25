@@ -11,7 +11,7 @@ public class OrdenCompraDTO {
     private ArticuloDTO articuloDTO;
     private EstadoOrdenCompraDTO estadoOrdenCompraDTO;
     private int cantPedida;
-    private  ProveedorDTO proveedorDTO;
+    private  ProveedorOCDTO proveedorDTO;
     private String fecha;
 
 }

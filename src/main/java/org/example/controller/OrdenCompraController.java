@@ -70,7 +70,8 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
     public ResponseEntity<?> cancelar(@RequestBody OrdenCompraDTO ordenCompra){
         try {
             Boolean PuedoCancelar = this.ordenCompraServiceImp.cancelar(ordenCompra);
-            if (PuedoCancelar = true){
+            System.out.println(PuedoCancelar);
+            if (PuedoCancelar == true){
                 OrdenCompra ordenCompraE = new OrdenCompra();
                 ordenCompraE = ordenCompraServiceImp.DTOaOC(ordenCompra);
             return ResponseEntity.status(HttpStatus.OK).body(servicio.save(ordenCompraE));
@@ -96,6 +97,7 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
             return ResponseEntity.status(HttpStatus.OK).body(servicio.save(ordenCompraE));
             }else return ResponseEntity.status(HttpStatus.OK).body("No podes Finalizar esta Orden de Compra");
         } catch(Exception e){
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
         }
     }

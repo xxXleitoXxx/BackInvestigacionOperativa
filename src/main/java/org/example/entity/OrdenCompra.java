@@ -1,5 +1,6 @@
 package org.example.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @Setter
 @Data
 @EqualsAndHashCode(callSuper=false)
-
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class OrdenCompra extends BaseEntity{
 
     private LocalDateTime fechaLlegadaOrdCom;

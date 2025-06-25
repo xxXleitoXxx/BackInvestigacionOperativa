@@ -1,10 +1,7 @@
 package org.example.services.clasesImp;
 
 import jakarta.transaction.Transactional;
-import org.example.dto.ArticuloDTO;
-import org.example.dto.EstadoOrdenCompraDTO;
-import org.example.dto.OrdenCompraDTO;
-import org.example.dto.ProveedorDTO;
+import org.example.dto.*;
 import org.example.enums.TipoLote;
 import org.example.entity.*;
 import org.example.repository.*;
@@ -54,7 +51,7 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
            PuedoCrear = false;
         }
         Articulo art = articuloRepository.findById(ordenCompra.getArticuloDTO().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + ordenCompra.getArticuloDTO().getId() ));
-        ordenCompra.getArticuloDTO();
+        //ordenCompra.getArticuloDTO();
         for (OrdenCompra oc : ordenCompraRepository.findAll()) {
             if ((ordenCompra.getArticuloDTO().getId() == art.getId()) && (oc.getEstadoOrdCom().getNomEOC() != "Finalizada")) {
                         PuedoCrear = false;
@@ -74,7 +71,7 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
     public Boolean cancelar(OrdenCompraDTO ordenCompra) {
         Boolean posible = true;
         OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
-        if (oc.getEstadoOrdCom().getNomEOC() != "Pendiente"){
+        if (oc.getEstadoOrdCom().getId() != 1){
             posible = false;
         }
         return posible;
@@ -83,7 +80,7 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
     public Boolean finalizar(OrdenCompraDTO ordenCompra) {
         Boolean posible = false;
         OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
-        if (oc.getEstadoOrdCom().getNomEOC() == "Enviada"){
+        if (oc.getEstadoOrdCom().getId() == 2){
             posible = true;
         }
         return posible;
@@ -109,6 +106,9 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
     public void crearporPeriodoFijo() {
         LocalDateTime fecahActual = LocalDateTime.now();
         for ( Articulo art : articuloRepository.findAll()) {
+            if (art.getDiaDePedido() != null){
+                System.out.println(art.getNomArt());
+
             Proveedor prov = proveedorRepository.findById(art.getProveedorElegido().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + art.getProveedorElegido().getId()));
             for (ProveedorArticulo pa : prov.getProveedorArticulos()) {
                 if ((pa.getArt().getId().equals(art.getId()) && (pa.tipoLote == TipoLote.PERIODOFIJO) && (art.getDiaDePedido().getDayOfYear() == fecahActual.getDayOfYear()))) {
@@ -116,11 +116,13 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
                     for (OrdenCompra ocv : ordenCompraRepository.findAll()) {
                         if ((ocv.getEstadoOrdCom().getId() == 1 || ocv.getEstadoOrdCom().getId() == 2) && (ocv.getArticulo().getId() == art.getId())) {
                             ExisteOC = true;
+                            System.out.println("1");
                             break;
                         }
                     }
-                    if ((art.getStock() >= art.getStockSeguridad()) && (ExisteOC == false)) {
+                    if ((art.getStock() <= art.getStockSeguridad()) && (ExisteOC == false)) {
                         //generar orden de compra
+                        System.out.println("2");
                         OrdenCompra oc = new OrdenCompra();
                         oc.setProv(art.getProveedorElegido());
                         LocalDateTime fechaactual = LocalDateTime.now();
@@ -130,11 +132,10 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
                         float precio = 0;
 
                         for (ProveedorArticulo pa1 : prov.getProveedorArticulos()) {
-                            if (pa1.getArt() == art) {
+                            if (pa1.getArt().getId() == art.getId()) {
                                 demora = pa.getDemoraEntrega();
                                 loteoptimo = pa.getLoteOptimo();
                                 precio = pa.getCostoUnitario();
-                                break;
                             }
                             LocalDateTime nuevaFecha = LocalDateTime.now();
                             oc.setFechaLlegadaOrdCom(LocalDateTime.now().plusDays(demora));
@@ -144,14 +145,16 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
                             oc.setEstadoOrdCom(eoc);
                             oc.setCantPedida(loteoptimo - art.getStock());
                             oc.setMontoTotalOrdCom((loteoptimo - art.getStock()) * precio);
-
+                            break;
+                        }
+                            oc.setArticulo(art);
                             ordenCompraRepository.save(oc);
                             art.setDiaDePedido(fecahActual.plusDays(pa.getDemoraEntrega()));
                             articuloRepository.save(art);
-                        }
+
                     }
                 }
-
+                }
             }
         }
     }
@@ -254,10 +257,10 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
         estadoOrdenCompraDTO.setNomEOC(oc.getEstadoOrdCom().getNomEOC());
         dto.setEstadoOrdenCompraDTO(estadoOrdenCompraDTO);
 
-        ProveedorDTO proveedorDTO = new ProveedorDTO();
-        proveedorDTO.setId(oc.getProv().getId());
-        proveedorDTO.setNomProv(oc.getProv().getNomProv());
-        dto.setProveedorDTO(proveedorDTO);
+        ProveedorOCDTO proveedorOCDTO = new ProveedorOCDTO();
+        proveedorOCDTO.setId(oc.getProv().getId());
+        proveedorOCDTO.setNomProv(oc.getProv().getNomProv());
+        dto.setProveedorDTO(proveedorOCDTO);
 
         return dto;
     }
