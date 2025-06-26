@@ -37,7 +37,7 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
     public ResponseEntity<?> crear(@RequestBody OrdenCompraDTO ordenCompra){
         try {
             Boolean PuedoCrear = this.ordenCompraServiceImp.crear(ordenCompra);
-            if (PuedoCrear = true){
+            if (PuedoCrear == true){
                 OrdenCompra ordenCompraE = new OrdenCompra();
                 ordenCompraE = ordenCompraServiceImp.DTOaOCNEW(ordenCompra);
             return ResponseEntity.status(HttpStatus.OK).body(servicio.save(ordenCompraE));

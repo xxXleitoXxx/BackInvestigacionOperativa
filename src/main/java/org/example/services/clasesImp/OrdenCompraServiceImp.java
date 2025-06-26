@@ -120,7 +120,7 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
                             break;
                         }
                     }
-                    if ((art.getStock() <= art.getStockSeguridad()) && (ExisteOC == false)) {
+                    if ((art.getStock() <= pa.getLoteOptimo()) && (ExisteOC == false)) {
                         //generar orden de compra
                         System.out.println("2");
                         OrdenCompra oc = new OrdenCompra();
@@ -149,10 +149,11 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
                         }
                             oc.setArticulo(art);
                             ordenCompraRepository.save(oc);
-                            art.setDiaDePedido(fecahActual.plusDays(pa.getDemoraEntrega()));
-                            articuloRepository.save(art);
+
 
                     }
+                    art.setDiaDePedido(fecahActual.plusDays(pa.getDemoraEntrega()));
+                    articuloRepository.save(art);
                 }
                 }
             }
