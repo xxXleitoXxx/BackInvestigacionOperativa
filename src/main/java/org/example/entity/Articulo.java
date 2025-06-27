@@ -47,10 +47,8 @@ public class Articulo extends BaseEntity{
     @Positive(message = "La desviación estándar durante el período de revisión debe ser mayor a cero.")
     private int desviacionEstandarDurantePeriodoRevisionEntrega;
 
-    //Relaciones
-    @ManyToOne( fetch = FetchType.LAZY)
-    @JoinColumn(name = "Proveedor_id")
-    private Proveedor proveedorElegido;
+
+    private Long proveedorElegidoID;
 
 
 }

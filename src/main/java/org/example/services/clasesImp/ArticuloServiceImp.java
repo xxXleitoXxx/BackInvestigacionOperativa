@@ -1,6 +1,7 @@
 package org.example.services.clasesImp;
 import jakarta.transaction.Transactional;
 import org.example.dto.ArticuloDTO;
+import org.example.dto.ArticuloProvDTO;
 import org.example.dto.ProveedorDTO;
 import org.example.entity.Articulo;
 import org.example.entity.OrdenCompra;
@@ -9,6 +10,7 @@ import org.example.entity.ProveedorArticulo;
 import org.example.enums.TipoLote;
 import org.example.repository.ArticuloRepository;
 import org.example.repository.BaseRepository;
+import org.example.repository.ProveedorRepository;
 import org.example.services.BaseServiceImpl;
 import org.example.services.EstrategiaCalculoInventario.EstrategiaCalculoInventario;
 import org.example.services.EstrategiaCalculoInventario.EstrategiaCalculoInventarioPeriodoFijo;
@@ -17,6 +19,7 @@ import org.example.services.interfaces.ArticuloService;
 import org.example.services.interfaces.ProveedorArticuloService;
 import org.example.services.interfaces.OrdenCompraService;
 import org.example.services.interfaces.ProveedorService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,6 +32,9 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     // Repositorio.
     private final ArticuloRepository articuloRepository;
+    @Autowired
+    private ProveedorRepository proveedorRepository;
+
 
     // Servicios consumidos.
     private final ProveedorService proveedorService;
@@ -69,17 +75,17 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         articuloNuevo.setDesviacionEstandarDurantePeriodoRevisionEntrega(articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega());
 
         // Si se quiere asignar un proveedor.
-        if (articuloDTO.getProveedorDTO() != null && articuloDTO.getProveedorDTO().getId() != null) {
+        if (articuloDTO.getProveedorDTOID() != null) {
 
-            Proveedor proveedor = proveedorService.findById(articuloDTO.getProveedorDTO().getId());
+            Proveedor proveedor = proveedorService.findById(articuloDTO.getProveedorDTOID());
             if (proveedor == null) {
                 throw new Exception("El proveedor no existe");
             }
 
-            articuloNuevo.setProveedorElegido(proveedor);
+            articuloNuevo.setProveedorElegidoID(proveedor.getId());
 
         } else {
-            articuloNuevo.setProveedorElegido(null);
+            articuloNuevo.setProveedorElegidoID(null);
 
         }
 
@@ -152,9 +158,9 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         }
 
         // Verificar si se quiere cambiar el proveedor predeterminado.
-        if (articuloDTO.getProveedorDTO() != null && articuloDTO.getProveedorDTO().getId() != null) {
+        if (articuloDTO.getProveedorDTOID() != null) {
 
-            Proveedor nuevoProveedorElegido = proveedorService.findById(articuloDTO.getProveedorDTO().getId());
+            Proveedor nuevoProveedorElegido = proveedorService.findById(articuloDTO.getProveedorDTOID());
 
             if (nuevoProveedorElegido == null) {
                 throw new Exception("El proveedor especificado no existe.");
@@ -176,7 +182,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
            // estrategiaCalculoInventario.calcular(proveedorArticuloOptional.get());
             System.out.println("pasa despues de recalcular");
             // Si pasa la validación, se asigna el proveedor
-            articuloExistente.setProveedorElegido(nuevoProveedorElegido);
+            articuloExistente.setProveedorElegidoID(nuevoProveedorElegido.getId());
 
         }
 
@@ -249,17 +255,17 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     //listaProveedorPorArticulo
     @Transactional
-    public List<ProveedorDTO> listarProveedoresPorArticulo(ArticuloDTO articuloDTO) throws Exception {
+    public List<ArticuloProvDTO> listarProveedoresPorArticulo(ArticuloDTO articuloDTO) throws Exception {
 
         //Buscar artículo
         Articulo articulo = findById(articuloDTO.getId());
         //Buscar lista de proveedores activos por artículo.
         List<Proveedor> listaProveedoresProveedoresActivosPorArticulo = proveedorService.findProveedoresActivosByArticuloId(articuloDTO.getId());
         // Crear lista de ProveedorDTO
-        List<ProveedorDTO> listaProveedoresProveedoresActivosPorArticuloDTO = new ArrayList<>();
+        List<ArticuloProvDTO> listaProveedoresProveedoresActivosPorArticuloDTO = new ArrayList<>();
 
         for (Proveedor proveedor : listaProveedoresProveedoresActivosPorArticulo) {
-            ProveedorDTO proveedorDTO = crearProveedorDTO(proveedor);
+            ArticuloProvDTO proveedorDTO = crearProveedorDTO(proveedor);
             listaProveedoresProveedoresActivosPorArticuloDTO.add(proveedorDTO);
         }
 
@@ -320,12 +326,9 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     private ArticuloDTO crearArticuloDTO(Articulo articulo) {
         ArticuloDTO dto = new ArticuloDTO();
         //tiene que traer el articulo y traer por lo menos el nombre y el id de proveedor
-       if(articulo.getProveedorElegido() != null){
-           ProveedorDTO dto1 =new ProveedorDTO();
-           dto1.setId(articulo.getProveedorElegido().getId());
-           dto1.setNomProv(articulo.getProveedorElegido().getNomProv());
-           dto.setProveedorDTO(dto1);
-           System.out.println(dto1.getNomProv());
+       if(articulo.getProveedorElegidoID() != null){
+           Optional<Proveedor> prov = proveedorRepository.findById(articulo.getProveedorElegidoID());
+           dto.setProveedorDTOID(prov.get().getId());
        }
 
 
@@ -353,14 +356,11 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     }
 
     //crearProveedorDTO. NO TRAE ArticuloDTO para evitar Bucles.
-    private ProveedorDTO crearProveedorDTO(Proveedor proveedor) {
-        ProveedorDTO dto = new ProveedorDTO();
+    private ArticuloProvDTO crearProveedorDTO(Proveedor proveedor) {
+        ArticuloProvDTO dto = new ArticuloProvDTO();
 
         dto.setId(proveedor.getId());
-        dto.setCodProv(proveedor.getCodProv());
         dto.setNomProv(proveedor.getNomProv());
-        dto.setDescripcionProv(proveedor.getDescripcionProv());
-        dto.setFechaHoraBajaProv(proveedor.getFechaHoraBajaProv());
 
 //        if (proveedor.getProveedorArticulos() != null && !proveedor.getProveedorArticulos().isEmpty()) {
 //            List<ProveedorArticuloDTO> listaDTO = proveedor.getProveedorArticulos().stream()

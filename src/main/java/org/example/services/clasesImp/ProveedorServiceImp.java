@@ -356,7 +356,7 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
 
         for(ProveedorArticulo pa :proveedorExistente.getProveedorArticulos()){
 
-            if (pa.getArt().getProveedorElegido().equals(proveedorExistente) ||comprobarOrdenDeCompraPendienteOEnviada(pa.getArt().getId())){
+            if (pa.getArt().getProveedorElegidoID().equals(proveedorExistente.getId()) ||comprobarOrdenDeCompraPendienteOEnviada(pa.getArt().getId())){
                 throw new Exception("No se puede moficar");
             }
 
@@ -445,10 +445,10 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         dto.setDesviacionEstandarUsoPeriodoEntrega(articulo.getDesviacionEstandarUsoPeriodoEntrega());
         dto.setDesviacionEstandarDurantePeriodoRevisionEntrega(articulo.getDesviacionEstandarDurantePeriodoRevisionEntrega());
 
-        if (articulo.getProveedorElegido() != null) {
+        if (articulo.getProveedorElegidoID() != null) {
             ProveedorDTO proveedorDTO = new ProveedorDTO();
-            proveedorDTO.setId(articulo.getProveedorElegido().getId());
-            dto.setProveedorDTO(proveedorDTO);
+            proveedorDTO.setId(articulo.getProveedorElegidoID());
+            dto.setProveedorDTOID(proveedorDTO.getId());
         }
         return dto;
     }

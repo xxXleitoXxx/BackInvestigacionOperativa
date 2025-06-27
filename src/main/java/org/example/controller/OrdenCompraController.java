@@ -104,11 +104,17 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
             Boolean PuedoFinalizar = this.ordenCompraServiceImp.finalizar(ordenCompra);
 
             if (PuedoFinalizar == true){
-                ordenCompraServiceImp.actualizarStock(ordenCompra);
+                boolean llegoStockMax = false;
+                llegoStockMax = ordenCompraServiceImp.actualizarStock(ordenCompra);
                 OrdenCompra ordenCompraE = new OrdenCompra();
                 ordenCompraE = ordenCompraServiceImp.DTOaOC(ordenCompra);
                 servicio.save(ordenCompraE);
-            return ResponseEntity.status(HttpStatus.OK).body("funciona");
+                if (llegoStockMax){
+                    return ResponseEntity.status(HttpStatus.OK).body("funciona");
+                }else {
+                    return ResponseEntity.status(HttpStatus.OK).body("No se llego al Max");
+                }
+
             }else throw new Exception("No podes Finalizar esta Orden de Compra");
         } catch (Exception e) {
             e.printStackTrace();

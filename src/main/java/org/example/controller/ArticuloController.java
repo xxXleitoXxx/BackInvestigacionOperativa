@@ -3,6 +3,7 @@ package org.example.controller;
 import jakarta.validation.Valid;
 import org.example.controller.Bases.BaseControllerImpl;
 import org.example.dto.ArticuloDTO;
+import org.example.dto.ArticuloProvDTO;
 import org.example.dto.ProveedorDTO;
 import org.example.entity.Articulo;
 import org.example.entity.Proveedor;
@@ -110,7 +111,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
     @GetMapping("/proveedoresPorArticlo")
     public ResponseEntity<?> listarProveedoresActivosPorArticulo(@RequestBody @Valid ArticuloDTO articuloDTO) {
         try {
-            List<ProveedorDTO> proveedores = servicio.listarProveedoresPorArticulo(articuloDTO);
+            List<ArticuloProvDTO> proveedores = servicio.listarProveedoresPorArticulo(articuloDTO);
             return ResponseEntity.ok(proveedores);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

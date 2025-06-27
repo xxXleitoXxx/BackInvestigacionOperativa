@@ -9,12 +9,14 @@ import org.example.repository.*;
 import org.example.services.BaseService;
 import org.example.services.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class VentaServiceImp extends BaseServiceImpl <Venta,Long> implements BaseService <Venta,Long> {
@@ -46,24 +48,30 @@ public class VentaServiceImp extends BaseServiceImpl <Venta,Long> implements Bas
             disponible = art1.getStock();
             if (pedido > disponible) {
                 posibilidad = false;
-                break;
-
+                throw new Exception("El articulo:" + art1.getNomArt() + " no tiene stock suficiente");
             }
         }
             return  posibilidad;
     }
 
-    public void ActualizarStock(VentaDTO venta){
+    public void ActualizarStock(VentaDTO venta) throws Exception {
         for (VentaArticuloDTO va : venta.getVentaArticuloDTOS()) {
             Articulo art1 = articuloRepository.findById(va.getArticuloDTO().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + va.getArticuloDTO().getId() ));
             int stockRestante = art1.getStock() - va.getCantArtVentDTO();
             art1.setStock(stockRestante);
             articuloRepository.save(art1);
-            Proveedor prov = proveedorRepository.findById(art1.getProveedorElegido().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + art1.getProveedorElegido().getId() ));
-            for (ProveedorArticulo pa : prov.getProveedorArticulos()){
-                if ( (pa.getArt() == art1) && (pa.getTipoLote() == TipoLote.LOTEFIJO)   ){
-                    System.out.println("se genero oc");
-                    CrearOrdenCompra(va);
+            if( (art1.getProveedorElegidoID() != null) && (art1.getStock() <= art1.getStockSeguridad())  ) {
+                Proveedor prov = proveedorRepository.findById(art1.getProveedorElegidoID()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + art1.getProveedorElegidoID()));
+                for (ProveedorArticulo pa : prov.getProveedorArticulos()) {
+                    if ((pa.getArt() == art1) && (pa.getTipoLote() == TipoLote.LOTEFIJO)) {
+                        System.out.println("se genero oc");
+                        CrearOrdenCompra(va);
+                    }
+                }
+            } else if ((art1.getProveedorElegidoID() == null) && (art1.getStock() <= art1.getStockSeguridad()) ) {
+                try{
+                    throw new Exception("Bajaste el Stock de Seguridad");
+                }catch (Exception e) {
                 }
             }
         }
@@ -84,9 +92,8 @@ public class VentaServiceImp extends BaseServiceImpl <Venta,Long> implements Bas
                 //generar orden de compra
             System.out.println("ghoasnbkj");
                 OrdenCompra oc = new OrdenCompra();
-                long idp = art1.getProveedorElegido().getId();
-                Proveedor prov = proveedorRepository.findById(idp).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + idp));
-                oc.setProv(art1.getProveedorElegido());
+                Proveedor prov = proveedorRepository.findById(art1.getProveedorElegidoID()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + art1.getProveedorElegidoID()));
+                oc.setProv(prov);
                 LocalDateTime fechaactual =  LocalDateTime.now() ;
                 oc.setFechaPedidoOrdCom(fechaactual);
                 int demora = 1 ;
