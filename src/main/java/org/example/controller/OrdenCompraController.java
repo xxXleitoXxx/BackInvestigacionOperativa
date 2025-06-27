@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -50,8 +51,9 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
             }else{
                 return ResponseEntity.status(HttpStatus.OK).body("No se peude crear esta Orden de Compra");
             }
-        } catch(Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -67,8 +69,9 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
             } else {
                 return ResponseEntity.status(HttpStatus.OK).body("no se puede modificar esta Orden de Compra");
             }
-        } catch(Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -87,8 +90,9 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
 
                 throw new Exception ("No se puede Cancelar esta Orden de Compra");
             }
-        } catch(Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -105,10 +109,10 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
                 ordenCompraE = ordenCompraServiceImp.DTOaOC(ordenCompra);
                 servicio.save(ordenCompraE);
             return ResponseEntity.status(HttpStatus.OK).body("funciona");
-            }else return ResponseEntity.status(HttpStatus.OK).body("No podes Finalizar esta Orden de Compra");
-        } catch(Exception e){
+            }else throw new Exception("No podes Finalizar esta Orden de Compra");
+        } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -119,9 +123,9 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
             ordenCompraServiceImp.crearporPeriodoFijo();
             System.out.println("B");
             return ResponseEntity.status(HttpStatus.OK).body("se crearon con exito");
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 

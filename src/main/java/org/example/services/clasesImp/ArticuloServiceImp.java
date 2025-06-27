@@ -163,18 +163,18 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             if (nuevoProveedorElegido.getFechaHoraBajaProv() != null){
                 throw new Exception("El proveedor ya fue dado de baja");
             }
-
+            System.out.println("pasa antes de opcional");
             //Buscar instancia de ProveedorArticulo asociada al articulo y al proveedor. Tiene que estar activa.
-            Optional<ProveedorArticulo> proveedorArticuloOptional = proveedorArticuloService.buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(nuevoProveedorElegido.getId(),articuloExistente.getId());
-
-            if (proveedorArticuloOptional.isEmpty()){
-                throw new Exception("El proveedor elegido no trabaja con este artículo");
-            }
-
+            //Optional<ProveedorArticulo> proveedorArticuloOptional = proveedorArticuloService.buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(nuevoProveedorElegido.getId(),articuloExistente.getId());
+            System.out.println("pasa despues de opcional");
+          //  if (proveedorArticuloOptional.isEmpty()){
+           //     throw new Exception("El proveedor elegido no trabaja con este artículo");
+            //}
+            System.out.println("pasa antes de recalcular");
             //Recalcular valores al ingresar el nuevo Proveedor.
-            EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(proveedorArticuloOptional.get().tipoLote);
-            estrategiaCalculoInventario.calcular(proveedorArticuloOptional.get());
-
+          //  EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(proveedorArticuloOptional.get().tipoLote);
+           // estrategiaCalculoInventario.calcular(proveedorArticuloOptional.get());
+            System.out.println("pasa despues de recalcular");
             // Si pasa la validación, se asigna el proveedor
             articuloExistente.setProveedorElegido(nuevoProveedorElegido);
 

@@ -50,7 +50,9 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
     @PutMapping("/modificarArticulo")
     public ResponseEntity<?> modificarArticulo(@RequestBody @Valid ArticuloDTO articulo) {
         try {
+            System.out.println("antes del servicio");
             ArticuloDTO actualizado = servicio.modificarArticulo(articulo);
+            System.out.println("despues del servicio");
             return ResponseEntity.ok(actualizado);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

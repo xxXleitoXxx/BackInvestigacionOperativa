@@ -43,8 +43,9 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
     }
 
     @PutMapping("/modificarProveedor")
-    public ResponseEntity<?> modificarProveedor(@RequestBody @Valid ProveedorDTO proveedorDTO) {
+    public ResponseEntity<?> modificarProveedor(@RequestBody  ProveedorDTO proveedorDTO) {
         try {
+            System.out.println("por aca pasé");
             ProveedorDTO proveedorActualizado = servicio.modificarProveedor(proveedorDTO);
             return ResponseEntity.ok(proveedorActualizado);
         } catch (Exception e) {
