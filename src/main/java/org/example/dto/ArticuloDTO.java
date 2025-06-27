@@ -42,6 +42,6 @@ public class ArticuloDTO {
     private int desviacionEstandarDurantePeriodoRevisionEntrega;
 
     // Si vas a validar proveedor también, deberías usar @Valid acá
-    private Long proveedorDTOID;
+    private ProveedorDTO proveedorDTO;
 }
 

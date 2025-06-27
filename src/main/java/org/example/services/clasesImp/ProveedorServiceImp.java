@@ -448,7 +448,7 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         if (articulo.getProveedorElegidoID() != null) {
             ProveedorDTO proveedorDTO = new ProveedorDTO();
             proveedorDTO.setId(articulo.getProveedorElegidoID());
-            dto.setProveedorDTOID(proveedorDTO.getId());
+            dto.setProveedorDTO(proveedorDTO);
         }
         return dto;
     }

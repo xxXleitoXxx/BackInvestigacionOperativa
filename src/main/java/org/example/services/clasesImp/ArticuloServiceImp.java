@@ -75,9 +75,9 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         articuloNuevo.setDesviacionEstandarDurantePeriodoRevisionEntrega(articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega());
 
         // Si se quiere asignar un proveedor.
-        if (articuloDTO.getProveedorDTOID() != null) {
+        if (articuloDTO.getProveedorDTO().getId() != null) {
 
-            Proveedor proveedor = proveedorService.findById(articuloDTO.getProveedorDTOID());
+            Proveedor proveedor = proveedorService.findById(articuloDTO.getProveedorDTO().getId());
             if (proveedor == null) {
                 throw new Exception("El proveedor no existe");
             }
@@ -158,9 +158,9 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         }
 
         // Verificar si se quiere cambiar el proveedor predeterminado.
-        if (articuloDTO.getProveedorDTOID() != null) {
+        if (articuloDTO.getProveedorDTO() != null  && articuloDTO.getProveedorDTO().getId() != null ) {
 
-            Proveedor nuevoProveedorElegido = proveedorService.findById(articuloDTO.getProveedorDTOID());
+            Proveedor nuevoProveedorElegido = proveedorService.findById(articuloDTO.getProveedorDTO().getId());
 
             if (nuevoProveedorElegido == null) {
                 throw new Exception("El proveedor especificado no existe.");
@@ -328,7 +328,10 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         //tiene que traer el articulo y traer por lo menos el nombre y el id de proveedor
        if(articulo.getProveedorElegidoID() != null){
            Optional<Proveedor> prov = proveedorRepository.findById(articulo.getProveedorElegidoID());
-           dto.setProveedorDTOID(prov.get().getId());
+          ProveedorDTO provdto = new ProveedorDTO();
+          provdto.setId(prov.get().getId());
+          provdto.setNomProv(prov.get().getNomProv());
+           dto.setProveedorDTO(provdto);
        }
 
 
