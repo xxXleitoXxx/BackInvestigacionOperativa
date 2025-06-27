@@ -36,11 +36,17 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
     @PostMapping("/crearManual")
     public ResponseEntity<?> crear(@RequestBody OrdenCompraDTO ordenCompra){
         try {
+            System.out.println("1");
             Boolean PuedoCrear = this.ordenCompraServiceImp.crear(ordenCompra);
-            if (PuedoCrear == true){
+            System.out.println("2");
+            if (PuedoCrear){
+                System.out.println("3");
                 OrdenCompra ordenCompraE = new OrdenCompra();
+                System.out.println("4");
                 ordenCompraE = ordenCompraServiceImp.DTOaOCNEW(ordenCompra);
-            return ResponseEntity.status(HttpStatus.OK).body(servicio.save(ordenCompraE));
+                System.out.println("5");
+                servicio.save(ordenCompraE);
+                return ResponseEntity.status(HttpStatus.OK).body("funciona");
             }else{
                 return ResponseEntity.status(HttpStatus.OK).body("No se peude crear esta Orden de Compra");
             }
@@ -56,7 +62,8 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
             if (PuedoMod = true){
                 OrdenCompra ordenCompraE = new OrdenCompra();
                 ordenCompraE = ordenCompraServiceImp.DTOaOC(ordenCompra);
-            return ResponseEntity.status(HttpStatus.OK).body(servicio.save(ordenCompraE));
+                servicio.save(ordenCompraE);
+            return ResponseEntity.status(HttpStatus.OK).body("funciona");
             } else {
                 return ResponseEntity.status(HttpStatus.OK).body("no se puede modificar esta Orden de Compra");
             }
@@ -74,9 +81,11 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
             if (PuedoCancelar == true){
                 OrdenCompra ordenCompraE = new OrdenCompra();
                 ordenCompraE = ordenCompraServiceImp.DTOaOC(ordenCompra);
-            return ResponseEntity.status(HttpStatus.OK).body(servicio.save(ordenCompraE));
+                servicio.save(ordenCompraE);
+            return ResponseEntity.status(HttpStatus.OK).body("Se cancelo con exito");
             }else {
-                return ResponseEntity.status(HttpStatus.OK).body("No se puede Cancelar esta Orden de Compra");
+
+                throw new Exception ("No se puede Cancelar esta Orden de Compra");
             }
         } catch(Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
@@ -94,7 +103,8 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
                 ordenCompraServiceImp.actualizarStock(ordenCompra);
                 OrdenCompra ordenCompraE = new OrdenCompra();
                 ordenCompraE = ordenCompraServiceImp.DTOaOC(ordenCompra);
-            return ResponseEntity.status(HttpStatus.OK).body(servicio.save(ordenCompraE));
+                servicio.save(ordenCompraE);
+            return ResponseEntity.status(HttpStatus.OK).body("funciona");
             }else return ResponseEntity.status(HttpStatus.OK).body("No podes Finalizar esta Orden de Compra");
         } catch(Exception e){
             e.printStackTrace();
