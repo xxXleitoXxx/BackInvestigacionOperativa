@@ -128,10 +128,10 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         // Traer artículo existente
         Articulo articuloExistente = this.findById(articuloDTO.getId());
 
-        // Comprobar que no haya unidades en stock
-        if (articuloExistente.getStock() != 0) {
-            throw new Exception("El artículo aún tiene unidades en stock");
-        }
+//        // Comprobar que no haya unidades en stock
+//        if (articuloExistente.getStock() != 0) {
+//            throw new Exception("El artículo aún tiene unidades en stock");
+//        }
 
         // Comprobar que no fue dado de baja anteriormente
         if (articuloExistente.getFechaHoraBajaArt() != null) {
@@ -319,6 +319,17 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     //crearArticuloDTO. NO TRAE ProveedorArticuloDTO para evitar bucles
     private ArticuloDTO crearArticuloDTO(Articulo articulo) {
         ArticuloDTO dto = new ArticuloDTO();
+        //tiene que traer el articulo y traer por lo menos el nombre y el id de proveedor
+       if(articulo.getProveedorElegido() != null){
+           ProveedorDTO dto1 =new ProveedorDTO();
+           dto1.setId(articulo.getProveedorElegido().getId());
+           dto1.setNomProv(articulo.getProveedorElegido().getNomProv());
+           dto.setProveedorDTO(dto1);
+           System.out.println(dto1.getNomProv());
+       }
+
+
+//Solo seteo nombre y id
 
         dto.setId(articulo.getId());
         dto.setCodArt(articulo.getCodArt());
@@ -332,12 +343,12 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         dto.setDesviacionEstandarUsoPeriodoEntrega(articulo.getDesviacionEstandarUsoPeriodoEntrega());
         dto.setDesviacionEstandarDurantePeriodoRevisionEntrega(articulo.getDesviacionEstandarDurantePeriodoRevisionEntrega());
 
-        if (articulo.getProveedorElegido() != null) {
-            ProveedorDTO proveedorDTO = new ProveedorDTO();
-            proveedorDTO.setId(articulo.getProveedorElegido().getId());
-
-            dto.setProveedorDTO(proveedorDTO);
-        }
+//        if (articulo.getProveedorElegido() != null) {
+//            ProveedorDTO proveedorDTO = new ProveedorDTO();
+//            proveedorDTO.setId(articulo.getProveedorElegido().getId());
+//
+//            dto.setProveedorDTO(proveedorDTO);
+//        }
         return dto;
     }
 

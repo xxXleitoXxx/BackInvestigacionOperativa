@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -50,11 +51,12 @@ public class VentaController extends BaseControllerImpl<Venta, VentaServiceImp> 
                 System.out.println("D");
                 return ResponseEntity.ok("savedVenta");
             } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No se puede concretar esta venta");
+                throw new Exception("La venta supera el stock");
+               // return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No se puede concretar esta venta");
             }
-        } catch(Exception e){
+        }catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\" Error\"}");
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 

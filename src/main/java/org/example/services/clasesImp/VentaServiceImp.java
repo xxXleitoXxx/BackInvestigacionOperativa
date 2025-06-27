@@ -37,7 +37,7 @@ public class VentaServiceImp extends BaseServiceImpl <Venta,Long> implements Bas
         this.ventaRepository = ventaRepository;
     }
 
-    public boolean controlVenta(VentaDTO venta){
+    public boolean controlVenta (VentaDTO venta) throws Exception {
         Boolean posibilidad = true;
         for(VentaArticuloDTO va : venta.getVentaArticuloDTOS()) {
             int pedido = va.getCantArtVentDTO();
@@ -47,6 +47,7 @@ public class VentaServiceImp extends BaseServiceImpl <Venta,Long> implements Bas
             if (pedido > disponible) {
                 posibilidad = false;
                 break;
+
             }
         }
             return  posibilidad;
