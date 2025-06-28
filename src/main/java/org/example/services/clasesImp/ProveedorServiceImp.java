@@ -94,7 +94,7 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
             pa.setTipoLote(paDTO.getTipoLote());
 
             //Aplicar estrategia de cálculo según tipo de lote
-            EstrategiaCalculoInventario estrategia = fabricaEstrategiaCalculoInventario.obtener(pa.getTipoLote());
+            EstrategiaCalculoInventario estrategia = fabricaEstrategiaCalculoInventario.obtener(pa.tipoLote);
             pa = estrategia.calcular(pa); // Se actualiza el objeto con cálculos
 
             listaProveedorArticulo.add(pa);
@@ -145,9 +145,11 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         //En caso de que no existan, quiere decir que se quiere cargar un articulo, no necesariamente es un error. Sino es que se quiere añadir un nuevo articulo al proveedor
         for (ProveedorArticuloDTO paDTO : proveedorDTO.getProveedorArticulos()){
 
-            // Validar que id no sea null antes de buscar
-            if (paDTO.getId() != null) {
 
+            // Validar que id no sea null antes de buscar
+          //  if (paDTO.getId() != null) {
+if(!paDTO.getId().equals(null) && paDTO.getId() != (0)) {
+    System.out.println("id de la clase ProveedorArticuloDTO: " + paDTO.getId());
                 Optional<ProveedorArticulo> proveedorArticuloOptional = Optional.ofNullable(proveedorArticuloService.findById(paDTO.getId()));
 
                 // Comprobar si existe en la base de datos el proveedor Articulo, esto es modificar un ProveedorArticulo existente.
@@ -192,6 +194,7 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
                 nuevoPA.setCostoMantenimiento(paDTO.getCostoMantenimiento());
                 nuevoPA.setPeriodoRevision(paDTO.getPeriodoRevision());
                 nuevoPA.setFechaHoraBajaArtProv(null);
+                nuevoPA.setTipoLote(paDTO.getTipoLote());
 
                 //Añadir a la lista de modificados.
                 listaProveedorArticuloModificado.add(nuevoPA);
@@ -212,8 +215,8 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         List <ProveedorArticulo> proveedorArticuloRecalculado = new ArrayList<ProveedorArticulo>();
 
         for(ProveedorArticulo pa : listaProveedorArticuloModificado){
-
-            EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(pa.getTipoLote());
+            System.out.println("Tipo de lote: " + pa.getTipoLote());
+            EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(pa.tipoLote);
             proveedorArticuloRecalculado.add(estrategiaCalculoInventario.calcular(pa));
 
         }
@@ -221,16 +224,19 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         proveedorExistente.setProveedorArticulos(proveedorArticuloRecalculado);
 
         //Actualizar al proveedor.
-        Proveedor proveedorModficado = update(proveedorExistente.getId(),proveedorExistente);
+       // Proveedor proveedorModficado = update(proveedorExistente.getId(),proveedorExistente);
 
 
 
 
 
-        return crearProveedorDTO(proveedorModficado);
-
+        return actualizarProveedorYArticulos(proveedorExistente, proveedorArticuloRecalculado);
     }
-
+    private ProveedorDTO actualizarProveedorYArticulos(Proveedor proveedorExistente, List<ProveedorArticulo> proveedorArticulosActualizados) throws Exception {
+        proveedorExistente.setProveedorArticulos(proveedorArticulosActualizados);
+        Proveedor proveedorModificado = update(proveedorExistente.getId(), proveedorExistente);
+        return crearProveedorDTO(proveedorModificado);
+    }
 
 
 

@@ -18,7 +18,9 @@ public class FabricaEstrategiaCalculoInventario {
     }
 
     public EstrategiaCalculoInventario obtener(TipoLote tipoLote) {
+        System.out.println("Obteniendo estrategia para tipo de lote: " + tipoLote);
         EstrategiaCalculoInventario estrategia = estrategias.get(tipoLote);
+
         if (estrategia == null) {
             throw new IllegalArgumentException("No existe estrategia para el tipo: " + tipoLote);
         }
