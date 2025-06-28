@@ -58,9 +58,12 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     @Transactional
     public ArticuloDTO altaArticulo(ArticuloDTO articuloDTO) throws Exception {
 
+        // Validar código duplicado
+        if (findByCodArt(articuloDTO.getCodArt()).isPresent()) {
+            throw new Exception("Ya existe un artículo con el código: " + articuloDTO.getCodArt());
+        }
 
-
-        //Crear Articulo en memoria
+        // Crear Articulo en memoria
         Articulo articuloNuevo = new Articulo();
         articuloNuevo.setCodArt(articuloDTO.getCodArt());
         articuloNuevo.setNomArt(articuloDTO.getNomArt());
@@ -71,30 +74,12 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         articuloNuevo.setDesviacionEstandarUsoPeriodoEntrega(articuloDTO.getDesviacionEstandarUsoPeriodoEntrega());
         articuloNuevo.setDesviacionEstandarDurantePeriodoRevisionEntrega(articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega());
 
-        // Si se quiere asignar un proveedor.
-        if (articuloDTO.getProveedorDTO() != null && articuloDTO.getProveedorDTO().getId() != null) {
-            //Validar código duplicado
-            if (findByCodArt(articuloDTO.getCodArt()).isPresent()) {
-                throw new Exception("Ya existe un artículo con el código: " + articuloDTO.getCodArt());
-            }
-
-            Proveedor proveedor = proveedorService.findById(articuloDTO.getProveedorDTO().getId());
-//            if (proveedor == null) {
-//                throw new Exception("El proveedor no existe");
-//            }
-
-            articuloNuevo.setProveedorElegidoID(proveedor.getId());
-
-       } else {
-       articuloNuevo.setProveedorElegidoID(null);
-
-  }
-
-        //Guardar artículo
+        // Guardar artículo
         Articulo articuloGuardado = save(articuloNuevo);
 
         return crearArticuloDTO(articuloGuardado);
     }
+
 
     @Transactional
     public ArticuloDTO bajaArticulo(ArticuloDTO articuloDTO) throws Exception {
