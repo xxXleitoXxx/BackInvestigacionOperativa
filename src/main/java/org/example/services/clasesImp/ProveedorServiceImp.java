@@ -164,7 +164,7 @@ if(!paDTO.getId().equals(null) && paDTO.getId() != (0)) {
                     proveedorArticuloExistente.setCostoMantenimiento(paDTO.getCostoMantenimiento());
                     proveedorArticuloExistente.setPeriodoRevision(paDTO.getPeriodoRevision());
                     proveedorArticuloExistente.setFechaHoraBajaArtProv(null);
-
+                    proveedorArticuloExistente.setTipoLote(paDTO.getTipoLote());
                     //Añadir a la lista de Modificados
                     listaProveedorArticuloModificado.add(proveedorArticuloExistente);
                     continue; // salto al siguiente paDTO porque ya modifiqué

@@ -3,6 +3,7 @@ package org.example.controller;
 import jakarta.validation.Valid;
 import org.example.controller.Bases.BaseControllerImpl;
 import org.example.dto.ArticuloDTO;
+import org.example.dto.ProveedorArticuloDTO;
 import org.example.dto.ProveedorDTO;
 import org.example.entity.Proveedor;
 import org.example.services.clasesImp.ProveedorServiceImp;
@@ -46,6 +47,11 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
     public ResponseEntity<?> modificarProveedor(@RequestBody  ProveedorDTO proveedorDTO) {
         try {
             System.out.println("por aca pasé");
+            for(ProveedorArticuloDTO proveedorArticuloDTO : proveedorDTO.getProveedorArticulos()) {
+
+                System.out.println("el tipo de lote es: " + proveedorArticuloDTO.getTipoLote());
+            }
+
             ProveedorDTO proveedorActualizado = servicio.modificarProveedor(proveedorDTO);
             return ResponseEntity.ok(proveedorActualizado);
         } catch (Exception e) {
