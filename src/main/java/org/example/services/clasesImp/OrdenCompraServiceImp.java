@@ -119,58 +119,65 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
     public void crearporPeriodoFijo() {
         LocalDateTime fecahActual = LocalDateTime.now();
         for ( Articulo art : articuloRepository.findAll()) {
-            if (art.getDiaDePedido() != null){
+            if (art.getDiaDePedido() != null) {
                 System.out.println(art.getNomArt());
-
-            Proveedor prov = proveedorRepository.findById(art.getProveedorElegidoID()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + art.getProveedorElegidoID()));
-            for (ProveedorArticulo pa : prov.getProveedorArticulos()) {
-                if ((pa.getArt().getId().equals(art.getId()) && (pa.tipoLote == TipoLote.PERIODOFIJO) && (art.getDiaDePedido().getDayOfYear() == fecahActual.getDayOfYear()))) {
-                    boolean ExisteOC = false;
-                    for (OrdenCompra ocv : ordenCompraRepository.findAll()) {
-                        if ((ocv.getEstadoOrdCom().getId() == 1 || ocv.getEstadoOrdCom().getId() == 2) && (Objects.equals(ocv.getArticulo().getId(), art.getId()))) {
-                            ExisteOC = true;
-                            System.out.println("1");
-                            break;
-                        }
-                    }
-                    if ((art.getStock() <= pa.getLoteOptimo()) && (!ExisteOC)) {
-                        //generar orden de compra
-                        System.out.println("2");
-                        OrdenCompra oc = new OrdenCompra();
-                        Optional<Proveedor> prov1 = proveedorRepository.findById(art.getProveedorElegidoID());
-                        if (prov1 != null){
-                            oc.setProv(prov1.get());
-                        }
-                        LocalDateTime fechaactual = LocalDateTime.now();
-                        oc.setFechaPedidoOrdCom(fechaactual);
-                        int demora = 1;
-                        int loteoptimo = 0;
-                        float precio = 0;
-
-                        for (ProveedorArticulo pa1 : prov.getProveedorArticulos()) {
-                            if (Objects.equals(pa1.getArt().getId(), art.getId())) {
-                                demora = pa.getDemoraEntrega();
-                                loteoptimo = pa.getLoteOptimo();
-                                precio = pa.getCostoUnitario();
+                if (art.getProveedorElegidoID() != null && art.getFechaHoraBajaArt() == null) {
+                    System.out.println("1");
+                    Proveedor prov = proveedorRepository.findById(art.getProveedorElegidoID()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + art.getProveedorElegidoID()));
+                    System.out.println("2");
+                    for (ProveedorArticulo pa : prov.getProveedorArticulos()) {
+                        System.out.println("3");
+                        if ((pa.getArt().getId().equals(art.getId()) && (pa.tipoLote == TipoLote.PERIODOFIJO) && (art.getDiaDePedido().getDayOfYear() == fecahActual.getDayOfYear()))) {
+                            System.out.println("4");
+                            boolean ExisteOC = false;
+                            for (OrdenCompra ocv : ordenCompraRepository.findAll()) {
+                                System.out.println("5");
+                                if ((ocv.getEstadoOrdCom().getId() == 1 || ocv.getEstadoOrdCom().getId() == 2) && (Objects.equals(ocv.getArticulo().getId(), art.getId()))) {
+                                    ExisteOC = true;
+                                    System.out.println("1");
+                                    break;
+                                }
                             }
-                            LocalDateTime nuevaFecha = LocalDateTime.now();
-                            oc.setFechaLlegadaOrdCom(LocalDateTime.now().plusDays(demora));
-                            //buscar al crear los Estados en la base de datos
-                            long idoc = 1;
-                            EstadoOrdenCompra eoc = estadoOrdenCompraRepository.findById(idoc).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + idoc));
-                            oc.setEstadoOrdCom(eoc);
-                            oc.setCantPedida(loteoptimo - art.getStock());
-                            oc.setMontoTotalOrdCom((loteoptimo - art.getStock()) * precio);
-                            break;
+                            System.out.println("6");
+                            if ((art.getStock() <= pa.getLoteOptimo()) && (!ExisteOC)) {
+                                //generar orden de compra
+                                System.out.println("2");
+                                OrdenCompra oc = new OrdenCompra();
+                                Optional<Proveedor> prov1 = proveedorRepository.findById(art.getProveedorElegidoID());
+                                if (prov1 != null) {
+                                    oc.setProv(prov1.get());
+                                }
+                                LocalDateTime fechaactual = LocalDateTime.now();
+                                oc.setFechaPedidoOrdCom(fechaactual);
+                                int demora = 1;
+                                int loteoptimo = 0;
+                                float precio = 0;
+
+                                for (ProveedorArticulo pa1 : prov.getProveedorArticulos()) {
+                                    if (Objects.equals(pa1.getArt().getId(), art.getId())) {
+                                        demora = pa.getDemoraEntrega();
+                                        loteoptimo = pa.getLoteOptimo();
+                                        precio = pa.getCostoUnitario();
+                                    }
+                                    LocalDateTime nuevaFecha = LocalDateTime.now();
+                                    oc.setFechaLlegadaOrdCom(LocalDateTime.now().plusDays(demora));
+                                    //buscar al crear los Estados en la base de datos
+                                    long idoc = 1;
+                                    EstadoOrdenCompra eoc = estadoOrdenCompraRepository.findById(idoc).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + idoc));
+                                    oc.setEstadoOrdCom(eoc);
+                                    oc.setCantPedida(loteoptimo - art.getStock());
+                                    oc.setMontoTotalOrdCom((loteoptimo - art.getStock()) * precio);
+                                    break;
+                                }
+                                oc.setArticulo(art);
+                                ordenCompraRepository.save(oc);
+
+
+                            }
+                            art.setDiaDePedido(fecahActual.plusDays(pa.getDemoraEntrega()));
+                            articuloRepository.save(art);
                         }
-                            oc.setArticulo(art);
-                            ordenCompraRepository.save(oc);
-
-
                     }
-                    art.setDiaDePedido(fecahActual.plusDays(pa.getDemoraEntrega()));
-                    articuloRepository.save(art);
-                }
                 }
             }
         }
