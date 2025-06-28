@@ -23,7 +23,9 @@ public class ProveedorArticulo extends BaseEntity{
     private int nivelDeServicio;//Se carga
     private Float costoUnitario; //Se carga
     private  Float costoPedido; // se carga
+    //este atributo parte de articulo
     private Float costoMantenimiento; //se carga
+    //---------------------------
     private  int loteOptimo; //eoq se calcula
     //Inventario Lote Fijo
     private int puntoPedido; //R punto de volver a pedir.Este es el punto de volver a pedir. Se calcula.

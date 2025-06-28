@@ -58,10 +58,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     @Transactional
     public ArticuloDTO altaArticulo(ArticuloDTO articuloDTO) throws Exception {
 
-        //Validar código duplicado
-        if (findByCodArt(articuloDTO.getCodArt()).isPresent()) {
-            throw new Exception("Ya existe un artículo con el código: " + articuloDTO.getCodArt());
-        }
+
 
         //Crear Articulo en memoria
         Articulo articuloNuevo = new Articulo();
@@ -75,19 +72,23 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         articuloNuevo.setDesviacionEstandarDurantePeriodoRevisionEntrega(articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega());
 
         // Si se quiere asignar un proveedor.
-        if (articuloDTO.getProveedorDTO().getId() != null) {
+        if (articuloDTO.getProveedorDTO() != null && articuloDTO.getProveedorDTO().getId() != null) {
+            //Validar código duplicado
+            if (findByCodArt(articuloDTO.getCodArt()).isPresent()) {
+                throw new Exception("Ya existe un artículo con el código: " + articuloDTO.getCodArt());
+            }
 
             Proveedor proveedor = proveedorService.findById(articuloDTO.getProveedorDTO().getId());
-            if (proveedor == null) {
-                throw new Exception("El proveedor no existe");
-            }
+//            if (proveedor == null) {
+//                throw new Exception("El proveedor no existe");
+//            }
 
             articuloNuevo.setProveedorElegidoID(proveedor.getId());
 
-        } else {
-            articuloNuevo.setProveedorElegidoID(null);
+       } else {
+       articuloNuevo.setProveedorElegidoID(null);
 
-        }
+  }
 
         //Guardar artículo
         Articulo articuloGuardado = save(articuloNuevo);
@@ -161,7 +162,8 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         if (articuloDTO.getProveedorDTO() != null  && articuloDTO.getProveedorDTO().getId() != null ) {
 
             Proveedor nuevoProveedorElegido = proveedorService.findById(articuloDTO.getProveedorDTO().getId());
-
+            System.out.println(articuloDTO.getProveedorDTO().getId());
+            System.out.println(articuloDTO.getProveedorDTO().getNomProv());
             if (nuevoProveedorElegido == null) {
                 throw new Exception("El proveedor especificado no existe.");
             }
@@ -171,15 +173,15 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             }
             System.out.println("pasa antes de opcional");
             //Buscar instancia de ProveedorArticulo asociada al articulo y al proveedor. Tiene que estar activa.
-            //Optional<ProveedorArticulo> proveedorArticuloOptional = proveedorArticuloService.buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(nuevoProveedorElegido.getId(),articuloExistente.getId());
+            Optional<ProveedorArticulo> proveedorArticuloOptional = proveedorArticuloService.buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(nuevoProveedorElegido.getId(),articuloExistente.getId());
             System.out.println("pasa despues de opcional");
-          //  if (proveedorArticuloOptional.isEmpty()){
-           //     throw new Exception("El proveedor elegido no trabaja con este artículo");
-            //}
+           if (proveedorArticuloOptional.isEmpty()){
+                throw new Exception("El proveedor elegido no trabaja con este artículo");
+           }
             System.out.println("pasa antes de recalcular");
             //Recalcular valores al ingresar el nuevo Proveedor.
-          //  EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(proveedorArticuloOptional.get().tipoLote);
-           // estrategiaCalculoInventario.calcular(proveedorArticuloOptional.get());
+           EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(proveedorArticuloOptional.get().tipoLote);
+           estrategiaCalculoInventario.calcular(proveedorArticuloOptional.get());
             System.out.println("pasa despues de recalcular");
             // Si pasa la validación, se asigna el proveedor
             articuloExistente.setProveedorElegidoID(nuevoProveedorElegido.getId());
