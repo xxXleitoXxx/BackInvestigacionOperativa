@@ -71,8 +71,8 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         articuloNuevo.setDescripcionArt(articuloDTO.getDescripcionArt());
         articuloNuevo.setStock(articuloDTO.getStock());
         articuloNuevo.setDemandaDiaria(articuloDTO.getDemandaDiaria());
-        articuloNuevo.setDesviacionEstandarUsoPeriodoEntrega(articuloDTO.getDesviacionEstandarUsoPeriodoEntrega());
-        articuloNuevo.setDesviacionEstandarDurantePeriodoRevisionEntrega(articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega());
+        articuloNuevo.setDesviacionEstandar(articuloDTO.getDesviacionEstandar());
+
 
         // Guardar artículo
         Articulo articuloGuardado = save(articuloNuevo);
@@ -156,18 +156,18 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             if (nuevoProveedorElegido.getFechaHoraBajaProv() != null){
                 throw new Exception("El proveedor ya fue dado de baja");
             }
-            System.out.println("pasa antes de opcional");
+
             //Buscar instancia de ProveedorArticulo asociada al articulo y al proveedor. Tiene que estar activa.
             Optional<ProveedorArticulo> proveedorArticuloOptional = proveedorArticuloService.buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(nuevoProveedorElegido.getId(),articuloExistente.getId());
-            System.out.println("pasa despues de opcional");
+
            if (proveedorArticuloOptional.isEmpty()){
                 throw new Exception("El proveedor elegido no trabaja con este artículo");
            }
-            System.out.println("pasa antes de recalcular");
+
             //Recalcular valores al ingresar el nuevo Proveedor.
            EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(proveedorArticuloOptional.get().tipoLote);
            estrategiaCalculoInventario.calcular(proveedorArticuloOptional.get());
-            System.out.println("pasa despues de recalcular");
+
             // Si pasa la validación, se asigna el proveedor
             articuloExistente.setProveedorElegidoID(nuevoProveedorElegido.getId());
 
@@ -178,7 +178,6 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         Articulo articuloModificado = update(articuloExistente.getId(), articuloExistente);
 
         return crearArticuloDTO(articuloModificado);
-
 
     }
 
@@ -196,8 +195,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
         // Setear nuevos valores
         articulo.setDemandaDiaria(articuloDTO.getDemandaDiaria());
-        articulo.setDesviacionEstandarUsoPeriodoEntrega(articuloDTO.getDesviacionEstandarUsoPeriodoEntrega());
-        articulo.setDesviacionEstandarDurantePeriodoRevisionEntrega(articuloDTO.getDesviacionEstandarDurantePeriodoRevisionEntrega());
+        articulo.setDesviacionEstandar(articuloDTO.getDesviacionEstandar());
 
         // Guardar y devolver DTO
         Articulo articuloActualizado = this.update(articulo.getId(), articulo);
@@ -312,18 +310,19 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     //crearArticuloDTO. NO TRAE ProveedorArticuloDTO para evitar bucles
     private ArticuloDTO crearArticuloDTO(Articulo articulo) {
         ArticuloDTO dto = new ArticuloDTO();
+
         //tiene que traer el articulo y traer por lo menos el nombre y el id de proveedor
-       if(articulo.getProveedorElegidoID() != null){
-           Optional<Proveedor> prov = proveedorRepository.findById(articulo.getProveedorElegidoID());
-          ProveedorDTO provdto = new ProveedorDTO();
-          provdto.setId(prov.get().getId());
-          provdto.setNomProv(prov.get().getNomProv());
-           dto.setProveedorDTO(provdto);
-       }
 
+        if(articulo.getProveedorElegidoID() != null){
 
-//Solo seteo nombre y id
+            Optional<Proveedor> prov = proveedorRepository.findById(articulo.getProveedorElegidoID());
+            ProveedorDTO provdto = new ProveedorDTO();
+            provdto.setId(prov.get().getId());
+            provdto.setNomProv(prov.get().getNomProv());
+            dto.setProveedorDTO(provdto);
+        }
 
+        //Solo seteo nombre y id
         dto.setId(articulo.getId());
         dto.setCodArt(articulo.getCodArt());
         dto.setNomArt(articulo.getNomArt());
@@ -333,8 +332,8 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         dto.setStock(articulo.getStock());
         dto.setStockSeguridad(articulo.getStockSeguridad());
         dto.setDemandaDiaria(articulo.getDemandaDiaria());
-        dto.setDesviacionEstandarUsoPeriodoEntrega(articulo.getDesviacionEstandarUsoPeriodoEntrega());
-        dto.setDesviacionEstandarDurantePeriodoRevisionEntrega(articulo.getDesviacionEstandarDurantePeriodoRevisionEntrega());
+        dto.setDesviacionEstandar(articulo.getDesviacionEstandar());
+
 
 //        if (articulo.getProveedorElegido() != null) {
 //            ProveedorDTO proveedorDTO = new ProveedorDTO();
@@ -342,6 +341,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 //
 //            dto.setProveedorDTO(proveedorDTO);
 //        }
+
         return dto;
     }
 

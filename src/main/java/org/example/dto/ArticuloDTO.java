@@ -36,10 +36,7 @@ public class ArticuloDTO {
     private int demandaDiaria;
 
     @Positive(message = "La desviación estándar en el uso debe ser mayor a cero.")
-    private int desviacionEstandarUsoPeriodoEntrega;
-
-    @Positive(message = "La desviación estándar durante el período de revisión debe ser mayor a cero.")
-    private int desviacionEstandarDurantePeriodoRevisionEntrega;
+    private int desviacionEstandar;
 
     // Si vas a validar proveedor también, deberías usar @Valid acá
     private ProveedorDTO proveedorDTO;

@@ -42,11 +42,7 @@ public class Articulo extends BaseEntity{
     @Positive(message = "La demanda diaria debe ser mayor a cero.")
     private int demandaDiaria; //se carga
     @Positive(message = "La desviación estándar en el uso debe ser mayor a cero.")
-    private int desviacionEstandarUsoPeriodoEntrega; //se carga
-    @Positive(message = "La desviación estándar durante el período de revisión debe ser mayor a cero.")
-    private int desviacionEstandarDurantePeriodoRevisionEntrega;
-
-
+    private int desviacionEstandar; //se carga
     private Long proveedorElegidoID;
 
 

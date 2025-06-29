@@ -11,10 +11,8 @@ import java.util.ArrayList;
 public class ProveedorDTO {
 
     // Atributos
-    private Long id;
-    @NotBlank(message = "El código del proveedor es obligatorio.") // Añadido
+    private Long id;// Añadido
     private String codProv;
-    @NotBlank(message = "El nombre del proveedor es obligatorio.") // Añadido
     private String nomProv;
     private String descripcionProv;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

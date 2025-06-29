@@ -94,7 +94,7 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
             pa.setTipoLote(paDTO.getTipoLote());
 
             //Aplicar estrategia de cálculo según tipo de lote
-            EstrategiaCalculoInventario estrategia = fabricaEstrategiaCalculoInventario.obtener(pa.tipoLote);
+            EstrategiaCalculoInventario estrategia = fabricaEstrategiaCalculoInventario.obtener(pa.getTipoLote());
             pa = estrategia.calcular(pa); // Se actualiza el objeto con cálculos
 
             listaProveedorArticulo.add(pa);
@@ -145,11 +145,9 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         //En caso de que no existan, quiere decir que se quiere cargar un articulo, no necesariamente es un error. Sino es que se quiere añadir un nuevo articulo al proveedor
         for (ProveedorArticuloDTO paDTO : proveedorDTO.getProveedorArticulos()){
 
-
             // Validar que id no sea null antes de buscar
-          //  if (paDTO.getId() != null) {
-if(!paDTO.getId().equals(null) && paDTO.getId() != (0)) {
-    System.out.println("id de la clase ProveedorArticuloDTO: " + paDTO.getId());
+            if (paDTO.getId() != null) {
+
                 Optional<ProveedorArticulo> proveedorArticuloOptional = Optional.ofNullable(proveedorArticuloService.findById(paDTO.getId()));
 
                 // Comprobar si existe en la base de datos el proveedor Articulo, esto es modificar un ProveedorArticulo existente.
@@ -165,6 +163,7 @@ if(!paDTO.getId().equals(null) && paDTO.getId() != (0)) {
                     proveedorArticuloExistente.setPeriodoRevision(paDTO.getPeriodoRevision());
                     proveedorArticuloExistente.setFechaHoraBajaArtProv(null);
                     proveedorArticuloExistente.setTipoLote(paDTO.getTipoLote());
+
                     //Añadir a la lista de Modificados
                     listaProveedorArticuloModificado.add(proveedorArticuloExistente);
                     continue; // salto al siguiente paDTO porque ya modifiqué
@@ -215,8 +214,8 @@ if(!paDTO.getId().equals(null) && paDTO.getId() != (0)) {
         List <ProveedorArticulo> proveedorArticuloRecalculado = new ArrayList<ProveedorArticulo>();
 
         for(ProveedorArticulo pa : listaProveedorArticuloModificado){
-            System.out.println("Tipo de lote: " + pa.getTipoLote());
-            EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(pa.tipoLote);
+
+            EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(pa.getTipoLote());
             proveedorArticuloRecalculado.add(estrategiaCalculoInventario.calcular(pa));
 
         }
@@ -224,23 +223,15 @@ if(!paDTO.getId().equals(null) && paDTO.getId() != (0)) {
         proveedorExistente.setProveedorArticulos(proveedorArticuloRecalculado);
 
         //Actualizar al proveedor.
-       // Proveedor proveedorModficado = update(proveedorExistente.getId(),proveedorExistente);
+        Proveedor proveedorModficado = update(proveedorExistente.getId(),proveedorExistente);
 
 
 
 
 
-        return actualizarProveedorYArticulos(proveedorExistente, proveedorArticuloRecalculado);
+        return crearProveedorDTO(proveedorModficado);
+
     }
-    private ProveedorDTO actualizarProveedorYArticulos(Proveedor proveedorExistente, List<ProveedorArticulo> proveedorArticulosActualizados) throws Exception {
-        proveedorExistente.setProveedorArticulos(proveedorArticulosActualizados);
-        Proveedor proveedorModificado = update(proveedorExistente.getId(), proveedorExistente);
-        return crearProveedorDTO(proveedorModificado);
-    }
-
-
-
-
 
     //modificarProveedor
 //    @Transactional
@@ -340,7 +331,6 @@ if(!paDTO.getId().equals(null) && paDTO.getId() != (0)) {
 //
 //    }
 
-
     //bajaProveedor.
     @Transactional
     public ProveedorDTO bajaProveedor(ProveedorDTO proveedorDTO) throws  Exception {
@@ -350,12 +340,12 @@ if(!paDTO.getId().equals(null) && paDTO.getId() != (0)) {
 
         //Ver si existe
         if (proveedorExistente == null){
-            new Exception("El proveedor no existe");
+            throw new  Exception("El proveedor no existe");
         }
 
         //Fue dado de baja antes
         if (proveedorExistente.getFechaHoraBajaProv() != null){
-            new Exception("El proveedor ya fue dado de baja");
+            throw new Exception ("El proveedor ya fue dado de baja");
         }
 
         //Comprobar Órdenes de Compra pendientes o Enviadas.
@@ -378,33 +368,29 @@ if(!paDTO.getId().equals(null) && paDTO.getId() != (0)) {
 
     //listarArticulosPorProveedor
     @Transactional
-    public List<ArticuloDTO> listarArticulosPorProveedor(ProveedorDTO proveedorDTO) throws Exception{
-
+    public List<ArticuloDTO> listarArticulosPorProveedor(ProveedorDTO proveedorDTO) throws Exception {
         Proveedor proveedor = findById(proveedorDTO.getId());
 
-        //Verificar si existe
-        if(proveedor == null){
-            new Exception("El proveedor no existe");
+        // Verificar si existe
+        if (proveedor == null) {
+            throw new Exception("El proveedor no existe");
         }
 
-        //Verificar si fue dado de baja
-        if (proveedorDTO.getFechaHoraBajaProv() != null){
-            new Exception("Ya fue dado de baja");
+        // Verificar si fue dado de baja
+        if (proveedor.getFechaHoraBajaProv() != null) {
+            throw new Exception("Ya fue dado de baja");
         }
 
         List<ArticuloDTO> listaArticuloPorProveedorDTO = new ArrayList<>();
 
-        for(ProveedorArticulo pa :proveedor.getProveedorArticulos()){
-
-            if (pa.getArt().getFechaHoraBajaArt() != null){
-
+        for (ProveedorArticulo pa : proveedor.getProveedorArticulos()) {
+            // Solo agregar artículos activos
+            if (pa.getArt().getFechaHoraBajaArt() == null) {
                 listaArticuloPorProveedorDTO.add(crearArticuloDTO(pa.getArt()));
             }
         }
-        return  listaArticuloPorProveedorDTO;
-
-
-     }
+        return listaArticuloPorProveedorDTO;
+    }
 
     @Override
     @Transactional
@@ -448,8 +434,8 @@ if(!paDTO.getId().equals(null) && paDTO.getId() != (0)) {
         dto.setStock(articulo.getStock());
         dto.setStockSeguridad(articulo.getStockSeguridad());
         dto.setDemandaDiaria(articulo.getDemandaDiaria());
-        dto.setDesviacionEstandarUsoPeriodoEntrega(articulo.getDesviacionEstandarUsoPeriodoEntrega());
-        dto.setDesviacionEstandarDurantePeriodoRevisionEntrega(articulo.getDesviacionEstandarDurantePeriodoRevisionEntrega());
+        dto.setDesviacionEstandar(articulo.getDesviacionEstandar());
+
 
         if (articulo.getProveedorElegidoID() != null) {
             ProveedorDTO proveedorDTO = new ProveedorDTO();

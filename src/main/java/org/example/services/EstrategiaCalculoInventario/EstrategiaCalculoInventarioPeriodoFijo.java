@@ -12,22 +12,22 @@ public class EstrategiaCalculoInventarioPeriodoFijo implements EstrategiaCalculo
         //Variables para cálculo del lote óptimo o punto para volver a pedir R.
 
         int d = proveedorArticulo.getArt().getDemandaDiaria(); //Demanda diaria
+        int D = d * 365; //Demanda anual
         int T = proveedorArticulo.getPeriodoRevision(); //Periodo revision
         int L = proveedorArticulo.getDemoraEntrega(); //Demora de entrega
         int z; //Números de desvios estandar respecto a la media.
         if(proveedorArticulo.getNivelDeServicio() == 85){ z = 1;} else { z=2;}
-        int o = proveedorArticulo.getArt().getDesviacionEstandarDurantePeriodoRevisionEntrega(); //Desvio Estandar.
+        int o = proveedorArticulo.getArt().getDesviacionEstandar(); //Desvio Estandar.
         int I = proveedorArticulo.getArt().getStock(); //Stock Actual.
 
         //Calcular Stock de seguridad y cantidad a pedir q
 
-        int stockSeguridad = z*o;
+        int stockSeguridad = z*o*(T+L);
         int q = d*(T+L) + stockSeguridad - I;
 
         //Calcular cantidadOptima e inventario maximo.
 
-        int D = d*365; //Demanda anual.
-        Float C = proveedorArticulo.getCostoPedido(); //Costo por Unidad
+        Float C = proveedorArticulo.getCostoUnitario(); //Costo por Unidad
         Float H = proveedorArticulo.getCostoMantenimiento(); //Costo de mantenimiento
         Float S = proveedorArticulo.getCostoPedido();   //Costo de pedido
         int Q = (int) Math.sqrt((2.0 * D * S) / H);
