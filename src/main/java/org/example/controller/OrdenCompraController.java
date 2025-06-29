@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import org.example.controller.Bases.BaseControllerImpl;
+import org.example.dto.ArticuloDTO;
+import org.example.dto.ArticuloOCDTO;
 import org.example.dto.OrdenCompraDTO;
 import org.example.entity.OrdenCompra;
 import org.example.services.clasesImp.OrdenCompraServiceImp;
@@ -103,16 +105,19 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
 
             Boolean PuedoFinalizar = this.ordenCompraServiceImp.finalizar(ordenCompra);
 
-            if (PuedoFinalizar == true){
+            if (PuedoFinalizar){
                 boolean llegoStockMax = false;
                 llegoStockMax = ordenCompraServiceImp.actualizarStock(ordenCompra);
                 OrdenCompra ordenCompraE = new OrdenCompra();
                 ordenCompraE = ordenCompraServiceImp.DTOaOC(ordenCompra);
                 servicio.save(ordenCompraE);
-                if (llegoStockMax){
-                    return ResponseEntity.status(HttpStatus.OK).body("funciona");
-                }else {
-                    return ResponseEntity.status(HttpStatus.OK).body("No se llego al Max");
+                if (!llegoStockMax){
+                    try {
+                        throw new Exception("No se llego al lote optimo");
+                    }catch (Exception e){            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+                    }
+                } else {
+                    return ResponseEntity.status(HttpStatus.OK).body(Map.of("error","no llego al lote optimo" ));
                 }
 
             }else throw new Exception("No podes Finalizar esta Orden de Compra");
@@ -135,6 +140,16 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
         }
     }
 
+    @PostMapping  ("/Cant")
+    public ResponseEntity<?> getcantecomendato(@RequestBody ArticuloOCDTO artOCDTO){
+        try {
+            int cantidadAPedir = 0;
+            cantidadAPedir = ordenCompraServiceImp.cantidadreoc(artOCDTO);
+            return ResponseEntity.ok(cantidadAPedir);
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage())); }
+    }
 
 
 

@@ -108,7 +108,6 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
                     if(StockNuevo < pa.getLoteOptimo()){
                         llego = false;
                     }
-                    break;
                 }
             }
             articuloRepository.save(articulo);
@@ -291,5 +290,27 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
         dto.setProveedorDTO(proveedorOCDTO);
 
         return dto;
+    }
+
+    public int cantidadreoc(ArticuloOCDTO artDTO) {
+        int monto = 0;
+
+        Articulo art = articuloRepository.findById(artDTO.getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + artDTO.getId()));
+
+        Proveedor prov = proveedorRepository.findById(art.getProveedorElegidoID()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + art.getProveedorElegidoID()));
+
+        for (ProveedorArticulo pa : prov.getProveedorArticulos()) {
+
+            if (Objects.equals(pa.getArt().getId(), art.getId())) {
+                monto = pa.getLoteOptimo() - art.getStock();
+            }
+
+
+        }
+        if (monto < 0) {
+            return 0;
+        } else {
+            return monto;
+        }
     }
 }
