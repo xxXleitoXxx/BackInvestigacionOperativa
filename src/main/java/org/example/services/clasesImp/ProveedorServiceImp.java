@@ -124,11 +124,11 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         }
 
         // Comprobar Órdenes de Compra pendientes o Enviadas.
-        for (ProveedorArticulo pa : proveedorExistente.getProveedorArticulos()) {
-            if (comprobarOrdenDeCompraPendienteOEnviada(pa.getId())) {
-                throw new Exception("No se puede modificar, existen órdenes de compra pendientes o enviadas.");
-            }
-        }
+//        for (ProveedorArticulo pa : proveedorExistente.getProveedorArticulos()) {
+//            if (comprobarOrdenDeCompraPendienteOEnviada(pa.getId())) {
+//                throw new Exception("No se puede modificar, existen órdenes de compra pendientes o enviadas.");
+//            }
+//        }
 
         proveedorExistente.setNomProv(proveedorDTO.getNomProv());
         proveedorExistente.setDescripcionProv(proveedorDTO.getDescripcionProv());
@@ -145,6 +145,17 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
 
                     // Baja lógica si trae fecha de baja
                     if (paDTO.getFechaHoraBajaArtProv() != null) {
+                        //        Comprobar que no tenga órdenes de compra pendientes o enviadas
+                        Long proveedorElegidoID = proveedorArticuloExistente.getArt().getProveedorElegidoID();
+                        if ((proveedorElegidoID != null && proveedorElegidoID.equals(proveedorExistente.getId()))
+                                || comprobarOrdenDeCompraPendienteOEnviada(proveedorArticuloExistente.getArt().getId())) {
+                            throw new Exception("No se puede dar de baja");
+                        }
+
+                        if (comprobarOrdenDeCompraPendienteOEnviada(proveedorArticuloExistente.getArt().getId())) {
+                            throw new Exception("El artículo tiene órdenes de compra pendientes o enviadas y no puede ser modificado");
+                        }
+
                         proveedorArticuloExistente.setFechaHoraBajaArtProv(paDTO.getFechaHoraBajaArtProv());
                     } else {
                         proveedorArticuloExistente.setDemoraEntrega(paDTO.getDemoraEntrega());

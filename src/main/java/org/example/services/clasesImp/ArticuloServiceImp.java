@@ -138,10 +138,10 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             throw new Exception("El artículo ya fue dado de baja");
         }
 
-        // Comprobar que no tenga órdenes de compra pendientes o enviadas
-        if (comprobarOrdenDeCompraPendienteOEnviada(articuloDTO.getId())) {
-            throw new Exception("El artículo tiene órdenes de compra pendientes o enviadas y no puede ser modificado");
-        }
+//        // Comprobar que no tenga órdenes de compra pendientes o enviadas
+//        if (comprobarOrdenDeCompraPendienteOEnviada(articuloDTO.getId())) {
+//            throw new Exception("El artículo tiene órdenes de compra pendientes o enviadas y no puede ser modificado");
+//        }
 
         // Actualizar campos básicos
         if (articuloDTO.getNomArt() != null && !articuloDTO.getNomArt().isBlank()) {
@@ -421,6 +421,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             if (articulo != null && articulo.getId().equals(idArticulo)) {
                 return true; // Existe una orden pendiente o enviada para el artículo
             }
+
         }
 
         return false; // No se encontró ninguna
