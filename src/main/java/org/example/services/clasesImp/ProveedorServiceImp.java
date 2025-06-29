@@ -110,68 +110,59 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
 
     //modificarProveedor
     @Transactional
-    public ProveedorDTO modificarProveedor (ProveedorDTO proveedorDTO) throws Exception {
+    public ProveedorDTO modificarProveedor(ProveedorDTO proveedorDTO) throws Exception {
 
-        //Buscar proveedor
+        // Buscar proveedor
         Proveedor proveedorExistente = findById(proveedorDTO.getId());
 
-        //Ver si existe
-        if (proveedorExistente == null){
+        if (proveedorExistente == null) {
             throw new Exception("El proveedor no existe");
         }
 
-        //Fue dado de baja antes
-        if (proveedorExistente.getFechaHoraBajaProv() != null){
+        if (proveedorExistente.getFechaHoraBajaProv() != null) {
             throw new Exception("El proveedor ya fue dado de baja");
         }
 
-        //Comprobar Órdenes de Compra pendientes o Enviadas.
-        for(ProveedorArticulo pa :proveedorExistente.getProveedorArticulos()){
-            if (comprobarOrdenDeCompraPendienteOEnviada(pa.getId())){
-                throw new Exception("No se puede moficar, existen órdenes de compra pendietes o enviadas.");
+        // Comprobar Órdenes de Compra pendientes o Enviadas.
+        for (ProveedorArticulo pa : proveedorExistente.getProveedorArticulos()) {
+            if (comprobarOrdenDeCompraPendienteOEnviada(pa.getId())) {
+                throw new Exception("No se puede modificar, existen órdenes de compra pendientes o enviadas.");
             }
         }
 
-        //Modificar atributos básicos
         proveedorExistente.setNomProv(proveedorDTO.getNomProv());
         proveedorExistente.setDescripcionProv(proveedorDTO.getDescripcionProv());
 
-        //Revisar atributos avanzados.
+        List<ProveedorArticulo> listaProveedorArticuloModificado = new ArrayList<>();
 
-        //Comprobar que estos proveedorArticulo existen o estan vinculados a un artículo existente.
+        for (ProveedorArticuloDTO paDTO : proveedorDTO.getProveedorArticulos()) {
 
-        List<ProveedorArticulo> listaProveedorArticuloModificado = new ArrayList<ProveedorArticulo>();
-
-        //En caso de que no existan, quiere decir que se quiere cargar un articulo, no necesariamente es un error. Sino es que se quiere añadir un nuevo articulo al proveedor
-        for (ProveedorArticuloDTO paDTO : proveedorDTO.getProveedorArticulos()){
-
-            // Validar que id no sea null antes de buscar
             if (paDTO.getId() != null && paDTO.getId() != 0) {
-
                 Optional<ProveedorArticulo> proveedorArticuloOptional = Optional.ofNullable(proveedorArticuloService.findById(paDTO.getId()));
 
-                // Comprobar si existe en la base de datos el proveedor Articulo, esto es modificar un ProveedorArticulo existente.
-                if (proveedorArticuloOptional.isPresent() ){
-
+                if (proveedorArticuloOptional.isPresent()) {
                     ProveedorArticulo proveedorArticuloExistente = proveedorArticuloOptional.get();
 
-                    proveedorArticuloExistente.setDemoraEntrega(paDTO.getDemoraEntrega());
-                    proveedorArticuloExistente.setNivelDeServicio(paDTO.getNivelDeServicio());
-                    proveedorArticuloExistente.setCostoUnitario(paDTO.getCostoUnitario());
-                    proveedorArticuloExistente.setCostoPedido(paDTO.getCostoPedido());
-                    proveedorArticuloExistente.setCostoMantenimiento(paDTO.getCostoMantenimiento());
-                    proveedorArticuloExistente.setPeriodoRevision(paDTO.getPeriodoRevision());
-                    proveedorArticuloExistente.setFechaHoraBajaArtProv(null);
-                    proveedorArticuloExistente.setTipoLote(paDTO.getTipoLote());
+                    // Baja lógica si trae fecha de baja
+                    if (paDTO.getFechaHoraBajaArtProv() != null) {
+                        proveedorArticuloExistente.setFechaHoraBajaArtProv(paDTO.getFechaHoraBajaArtProv());
+                    } else {
+                        proveedorArticuloExistente.setDemoraEntrega(paDTO.getDemoraEntrega());
+                        proveedorArticuloExistente.setNivelDeServicio(paDTO.getNivelDeServicio());
+                        proveedorArticuloExistente.setCostoUnitario(paDTO.getCostoUnitario());
+                        proveedorArticuloExistente.setCostoPedido(paDTO.getCostoPedido());
+                        proveedorArticuloExistente.setCostoMantenimiento(paDTO.getCostoMantenimiento());
+                        proveedorArticuloExistente.setPeriodoRevision(paDTO.getPeriodoRevision());
+                        proveedorArticuloExistente.setFechaHoraBajaArtProv(null);
+                        proveedorArticuloExistente.setTipoLote(paDTO.getTipoLote());
+                    }
 
-                    //Añadir a la lista de Modificados
                     listaProveedorArticuloModificado.add(proveedorArticuloExistente);
-                    continue; // salto al siguiente paDTO porque ya modifiqué
+                    continue;
                 }
             }
 
-            // Si llegamos acá es porque paDTO.getId() es null o no existe en DB => crear nuevo ProveedorArticulo
-
+            // Nuevo ProveedorArticulo
             if (paDTO.getArticuloDTO() == null || paDTO.getArticuloDTO().getId() == null) {
                 throw new Exception("Falta el ID del artículo para crear ProveedorArticulo");
             }
@@ -179,13 +170,8 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
             Optional<Articulo> articuloExistenteOptional = Optional.ofNullable(articuloService.findById(paDTO.getArticuloDTO().getId()));
 
             if (articuloExistenteOptional.isPresent()) {
-
                 ProveedorArticulo nuevoPA = new ProveedorArticulo();
-
-                // Asociar artículo existente
                 nuevoPA.setArt(articuloExistenteOptional.get());
-
-                // Setear los atributos cargables (los que vienen del DTO)
                 nuevoPA.setDemoraEntrega(paDTO.getDemoraEntrega());
                 nuevoPA.setNivelDeServicio(paDTO.getNivelDeServicio());
                 nuevoPA.setCostoUnitario(paDTO.getCostoUnitario());
@@ -194,39 +180,33 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
                 nuevoPA.setPeriodoRevision(paDTO.getPeriodoRevision());
                 nuevoPA.setFechaHoraBajaArtProv(null);
                 nuevoPA.setTipoLote(paDTO.getTipoLote());
-
-                //Añadir a la lista de modificados.
                 listaProveedorArticuloModificado.add(nuevoPA);
-
             } else {
                 throw new Exception("No existe el artículo con ID " + paDTO.getArticuloDTO().getId());
             }
         }
 
-        //Revisar si la lista está vacía. Supongo que no debería pasar porque se tiene que crear un proveedor si o si con un articulo.
-        if (listaProveedorArticuloModificado.isEmpty()){
+        if (listaProveedorArticuloModificado.isEmpty()) {
             throw new Exception("No hay proveedores artículo para modificar");
         }
 
-        //Añadir nueva lista de ProveedorArticulo.
-        //Realizar estrategia
-
-        List <ProveedorArticulo> proveedorArticuloRecalculado = new ArrayList<ProveedorArticulo>();
-
-        for(ProveedorArticulo pa : listaProveedorArticuloModificado){
-
-            EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(pa.getTipoLote());
-            proveedorArticuloRecalculado.add(estrategiaCalculoInventario.calcular(pa));
+        // Recalcular solo los activos
+        List<ProveedorArticulo> proveedorArticuloRecalculado = new ArrayList<>();
+        for (ProveedorArticulo pa : listaProveedorArticuloModificado) {
+            if (pa.getFechaHoraBajaArtProv() == null) {
+                EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(pa.getTipoLote());
+                proveedorArticuloRecalculado.add(estrategiaCalculoInventario.calcular(pa));
+            } else {
+                // Mantener los dados de baja sin recalcular
+                proveedorArticuloRecalculado.add(pa);
+            }
         }
 
         proveedorExistente.setProveedorArticulos(proveedorArticuloRecalculado);
 
-        //Actualizar al proveedor.
-        Proveedor proveedorModficado = update(proveedorExistente.getId(),proveedorExistente);
-
+        Proveedor proveedorModficado = update(proveedorExistente.getId(), proveedorExistente);
 
         return crearProveedorDTO(proveedorModficado);
-
     }
 
     //modificarProveedor
