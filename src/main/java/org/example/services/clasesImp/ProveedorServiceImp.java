@@ -309,10 +309,10 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
 
     //bajaProveedor.
     @Transactional
-    public ProveedorDTO bajaProveedor(ProveedorDTO proveedorDTO) throws  Exception {
+    public ProveedorDTO bajaProveedor(Long id) throws  Exception {
 
         //Buscar proveedor
-        Proveedor proveedorExistente = findById(proveedorDTO.getId());
+        Proveedor proveedorExistente = findById(id);
 
         //Ver si existe
         if (proveedorExistente == null){
@@ -328,8 +328,10 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
 
         for(ProveedorArticulo pa :proveedorExistente.getProveedorArticulos()){
 
-            if (pa.getArt().getProveedorElegidoID().equals(proveedorExistente.getId()) ||comprobarOrdenDeCompraPendienteOEnviada(pa.getArt().getId())){
-                throw new Exception("No se puede moficar");
+            Long proveedorElegidoID = pa.getArt().getProveedorElegidoID();
+            if ((proveedorElegidoID != null && proveedorElegidoID.equals(proveedorExistente.getId()))
+                    || comprobarOrdenDeCompraPendienteOEnviada(pa.getArt().getId())) {
+                throw new Exception("No se puede dar de baja");
             }
 
             pa.setFechaHoraBajaArtProv(new Date());

@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.java.Log;
 import org.example.controller.Bases.BaseControllerImpl;
 import org.example.dto.ArticuloDTO;
 import org.example.dto.ProveedorArticuloDTO;
@@ -33,10 +34,11 @@ public class ProveedorController extends BaseControllerImpl<Proveedor, Proveedor
     }
 
     //bajaProveedor
-    @PutMapping("/bajaProveedor")
-    public ResponseEntity<?> bajaProveedor(@RequestBody @Valid ProveedorDTO proveedorDTO) {
+
+    @PutMapping("/bajaProveedor/{id}")
+    public ResponseEntity<?> bajaProveedor(@PathVariable Long id) {
         try {
-            ProveedorDTO proveedorBaja = servicio.bajaProveedor(proveedorDTO);
+            ProveedorDTO proveedorBaja = servicio.bajaProveedor( id);
             return ResponseEntity.ok(proveedorBaja);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
