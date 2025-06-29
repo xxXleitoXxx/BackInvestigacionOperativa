@@ -213,7 +213,6 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     }
 
-
     //modificarParámetrosInventario
     @Transactional
     public ArticuloDTO modificarParametrosInventario(ArticuloDTO articuloDTO) throws Exception {
@@ -314,8 +313,14 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
         for (ProveedorArticulo proveedorArticulo : listaProveedorArticulo){
 
-            if(proveedorArticulo.getTipoLote() == TipoLote.LOTEFIJO && proveedorArticulo.getPuntoPedido() == proveedorArticulo.getArt().getStock()){
+            if(proveedorArticulo.getTipoLote() == TipoLote.LOTEFIJO && proveedorArticulo.getArt().getStockSeguridad() < proveedorArticulo.getArt().getStock() && proveedorArticulo.getArt().getStock() <= proveedorArticulo.getPuntoPedido() ){
                 listaArticulos.add(proveedorArticulo.getArt());
+            }
+        }
+
+        for (Articulo articulo : listaArticulos) {
+            if (comprobarOrdenDeCompraPendienteOEnviada(articulo.getId())) {
+                listaArticulos.remove(articulo);
             }
         }
 
@@ -400,10 +405,10 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     @Transactional
     private Boolean comprobarOrdenDeCompraPendienteOEnviada(Long idArticulo) {
         // Buscar órdenes de compra con estado PENDIENTE
-        List<OrdenCompra> ordenesPendientes = ordenCompraService.buscarOrdenCompraPorEstado("PENDIENTE");
+        List<OrdenCompra> ordenesPendientes = ordenCompraService.buscarOrdenCompraPorEstado("EOC001");
 
         // Buscar órdenes de compra con estado ENVIADA
-        List<OrdenCompra> ordenesEnviadas = ordenCompraService.buscarOrdenCompraPorEstado("ENVIADA");
+        List<OrdenCompra> ordenesEnviadas = ordenCompraService.buscarOrdenCompraPorEstado("EOC002");
 
         // Unir ambas listas
         List<OrdenCompra> ordenes = new ArrayList<>();

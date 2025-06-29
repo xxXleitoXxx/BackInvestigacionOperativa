@@ -396,7 +396,7 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
     }
 
 
-    //Métodos Auxiliares
+    //Métodos Auxiliares----------------------------------------------------------------------------------------------------------------------------
 
     //crearArticuloDTO. NO TRAE ProveedorArticuloDTO para evitar bucles
     private ArticuloDTO crearArticuloDTO(Articulo articulo) {
@@ -476,10 +476,10 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
     @Transactional
     private Boolean comprobarOrdenDeCompraPendienteOEnviada(Long idArticulo) {
         // Buscar órdenes de compra con estado PENDIENTE
-        List<OrdenCompra> ordenesPendientes = ordenCompraService.buscarOrdenCompraPorEstado("PENDIENTE");
+        List<OrdenCompra> ordenesPendientes = ordenCompraService.buscarOrdenCompraPorEstado("EOC001");
 
         // Buscar órdenes de compra con estado ENVIADA
-        List<OrdenCompra> ordenesEnviadas = ordenCompraService.buscarOrdenCompraPorEstado("EN CURSO");
+        List<OrdenCompra> ordenesEnviadas = ordenCompraService.buscarOrdenCompraPorEstado("EOC002");
 
         // Unir ambas listas
         List<OrdenCompra> ordenes = new ArrayList<>();
