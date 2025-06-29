@@ -146,7 +146,7 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         for (ProveedorArticuloDTO paDTO : proveedorDTO.getProveedorArticulos()){
 
             // Validar que id no sea null antes de buscar
-            if (paDTO.getId() != null) {
+            if (paDTO.getId() != null && paDTO.getId() != 0) {
 
                 Optional<ProveedorArticulo> proveedorArticuloOptional = Optional.ofNullable(proveedorArticuloService.findById(paDTO.getId()));
 
