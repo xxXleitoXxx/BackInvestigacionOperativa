@@ -15,4 +15,7 @@ public interface ProveedorArticuloService extends BaseService<ProveedorArticulo,
       //buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo
       Optional<ProveedorArticulo> buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(Long idProveedor, Long idArticulo);
 
+      //buscarInstanciaActivaProveedorArticuloSegunProveedor
+      List<ProveedorArticulo> findActivosByArticuloId(Long articuloId);
+
 }
