@@ -325,7 +325,6 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
         }
 
         //Comprobar Órdenes de Compra pendientes o Enviadas.
-
         for(ProveedorArticulo pa :proveedorExistente.getProveedorArticulos()){
 
             Long proveedorElegidoID = pa.getArt().getProveedorElegidoID();

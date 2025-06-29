@@ -44,5 +44,11 @@ public class ProveedorArticuloServiceImp extends BaseServiceImpl <ProveedorArtic
         return proveedorArticuloRepository.findActivosByArticuloId(articuloId);
     }
 
+    @Override
+    @Transactional
+    public List<ProveedorArticulo> findByArticuloIdAndFechaHoraBajaArtProvIsNull(Long articuloId) {
+        return proveedorArticuloRepository.findByArticuloIdAndFechaHoraBajaArtProvIsNull(articuloId);
+    }
+
 
 }

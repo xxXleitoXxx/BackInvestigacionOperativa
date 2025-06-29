@@ -13,7 +13,6 @@ import org.example.repository.BaseRepository;
 import org.example.repository.ProveedorRepository;
 import org.example.services.BaseServiceImpl;
 import org.example.services.EstrategiaCalculoInventario.EstrategiaCalculoInventario;
-
 import org.example.services.EstrategiaCalculoInventario.FabricaEstrategiaCalculoInventario;
 import org.example.services.interfaces.ArticuloService;
 import org.example.services.interfaces.ProveedorArticuloService;
@@ -23,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -103,6 +103,19 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         }
 
         articulo.setFechaHoraBajaArt(LocalDateTime.now());
+        articulo.setProveedorElegidoID(null); // Limpiar proveedor elegido al dar de baja
+
+        //Dar de baja ProveedorArticulo asociado al artículo
+        proveedorArticuloService.findByArticuloIdAndFechaHoraBajaArtProvIsNull(articulo.getId())
+                .forEach(pa -> {
+                    pa.setFechaHoraBajaArtProv(new Date());
+                    try {
+                        proveedorArticuloService.update(pa.getId(), pa);
+                    } catch (Exception e) {
+                        throw new RuntimeException ("Error al actualizar ProveedorArticulo: " + pa.getId(), e);
+                    }
+                });
+
         update(articulo.getId(), articulo);
 
         return crearArticuloDTO(articulo);
