@@ -52,10 +52,14 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
             System.out.println("B");
            PuedoCrear = false;
         }
+
         System.out.println("C");
         Articulo art = articuloRepository.findById(ordenCompra.getArticuloDTO().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + ordenCompra.getArticuloDTO().getId() ));
         System.out.println("D");
         //ordenCompra.getArticuloDTO();
+        if (art.getFechaHoraBajaArt() != null){
+            PuedoCrear = false;
+        }
         for (OrdenCompra oc : ordenCompraRepository.findAll()) {
             System.out.println("E");
             if ((Objects.equals(ordenCompra.getArticuloDTO().getId(), art.getId())) && (!Objects.equals(oc.getEstadoOrdCom().getNomEOC(), "Finalizada"))) {
