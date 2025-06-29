@@ -51,7 +51,7 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
                 servicio.save(ordenCompraE);
                 return ResponseEntity.status(HttpStatus.OK).body("funciona");
             }else{
-                return ResponseEntity.status(HttpStatus.OK).body("No se peude crear esta Orden de Compra");
+               throw new Exception("No se peude crear esta Orden de Compra");
             }
         } catch (Exception e) {
             e.printStackTrace();
