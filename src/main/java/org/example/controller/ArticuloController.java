@@ -85,7 +85,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
 
 
     //listarArticulosActivos
-    @GetMapping("/articulosActivos")
+    @PostMapping("/articulosActivos")
     public ResponseEntity<?> listarArticulosActivos() {
         try {
             List<ArticuloDTO> articulosActivosDTO = servicio.listarArticulosActivos();
@@ -108,7 +108,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
     }
 
     //listarProveedoresActivosPorArticulo
-    @GetMapping("/proveedoresPorArticlo")
+    @PostMapping("/proveedoresPorArticulo")
     public ResponseEntity<?> listarProveedoresActivosPorArticulo(@RequestBody @Valid ArticuloDTO articuloDTO) {
         try {
             List<ArticuloProvDTO> proveedores = servicio.listarProveedoresPorArticulo(articuloDTO);
@@ -119,7 +119,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
     }
 
     //listarProductosFaltantes
-    @GetMapping("/articulosFaltantes")
+    @PostMapping("/articulosFaltantes")
     public ResponseEntity<?> listarProductosFaltantes() {
         try {
             List<ArticuloDTO> articulosFaltantes = servicio.listarArticulosFaltantes();

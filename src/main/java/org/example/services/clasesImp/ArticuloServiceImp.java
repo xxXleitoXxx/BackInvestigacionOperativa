@@ -13,7 +13,7 @@ import org.example.repository.BaseRepository;
 import org.example.repository.ProveedorRepository;
 import org.example.services.BaseServiceImpl;
 import org.example.services.EstrategiaCalculoInventario.EstrategiaCalculoInventario;
-import org.example.services.EstrategiaCalculoInventario.EstrategiaCalculoInventarioPeriodoFijo;
+
 import org.example.services.EstrategiaCalculoInventario.FabricaEstrategiaCalculoInventario;
 import org.example.services.interfaces.ArticuloService;
 import org.example.services.interfaces.ProveedorArticuloService;
