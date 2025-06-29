@@ -74,7 +74,7 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
         System.out.println("H");
         for (ProveedorArticulo pa : prov.getProveedorArticulos()){
             System.out.println("I");
-            if (Objects.equals(prov.getId(), ordenCompra.getProveedorDTO().getId())){
+            if (Objects.equals(prov.getId(), ordenCompra.getProveedorDTO().getId())  && pa.getFechaHoraBajaArtProv() != null  ){
                 PuedoCrear = true;
                 System.out.println("J");
             }
@@ -306,7 +306,7 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
         for (ProveedorArticulo pa : prov.getProveedorArticulos()) {
 
             if (Objects.equals(pa.getArt().getId(), art.getId())) {
-                monto = pa.getLoteOptimo() - art.getStock();
+                monto = pa.getLoteOptimo() - art.getStock() + art.getStockSeguridad();
             }
 
 

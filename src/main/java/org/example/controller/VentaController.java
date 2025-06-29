@@ -49,7 +49,7 @@ public class VentaController extends BaseControllerImpl<Venta, VentaServiceImp> 
                 Venta vent = ventaServiceImp.dtoAventa(ventaDTO);
                 ventaServiceImp.save(vent);
                 System.out.println("D");
-                return ResponseEntity.ok("savedVenta");
+                return ResponseEntity.status(HttpStatus.OK).body("se guardo la venta");
             } else {
                 throw new Exception("La venta supera el stock");
                // return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No se puede concretar esta venta");

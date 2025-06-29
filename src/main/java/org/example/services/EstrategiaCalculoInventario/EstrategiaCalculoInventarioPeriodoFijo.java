@@ -15,14 +15,14 @@ public class EstrategiaCalculoInventarioPeriodoFijo implements EstrategiaCalculo
         int D = d * 365; //Demanda anual
         int T = proveedorArticulo.getPeriodoRevision(); //Periodo revision
         int L = proveedorArticulo.getDemoraEntrega(); //Demora de entrega
-        int z; //Números de desvios estandar respecto a la media.
-        if(proveedorArticulo.getNivelDeServicio() == 85){ z = 1;} else { z=2;}
+        double z; //Números de desvios estandar respecto a la media.
+        if(proveedorArticulo.getNivelDeServicio() == 85){ z = 1.036;} else { z=1.645;}
         int o = proveedorArticulo.getArt().getDesviacionEstandar(); //Desvio Estandar.
         int I = proveedorArticulo.getArt().getStock(); //Stock Actual.
 
         //Calcular Stock de seguridad y cantidad a pedir q
 
-        int stockSeguridad = z*o*(T+L);
+        int stockSeguridad = (int) (z*o*(T+L));
         int q = d*(T+L) + stockSeguridad - I;
 
         //Calcular cantidadOptima e inventario maximo.
