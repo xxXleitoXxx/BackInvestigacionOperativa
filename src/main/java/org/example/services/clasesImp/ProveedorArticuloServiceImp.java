@@ -38,5 +38,11 @@ public class ProveedorArticuloServiceImp extends BaseServiceImpl <ProveedorArtic
         return proveedorArticuloRepository.buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(idProveedor,idArticulo);
     }
 
+    @Override
+    @Transactional
+    public List<ProveedorArticulo> findActivosByArticuloId(Long articuloId) {
+        return proveedorArticuloRepository.findActivosByArticuloId(articuloId);
+    }
+
 
 }

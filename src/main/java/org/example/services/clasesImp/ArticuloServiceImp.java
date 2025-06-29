@@ -120,11 +120,6 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         // Traer artículo existente
         Articulo articuloExistente = this.findById(articuloDTO.getId());
 
-//        // Comprobar que no haya unidades en stock
-//        if (articuloExistente.getStock() != 0) {
-//            throw new Exception("El artículo aún tiene unidades en stock");
-//        }
-
         // Comprobar que no fue dado de baja anteriormente
         if (articuloExistente.getFechaHoraBajaArt() != null) {
             throw new Exception("El artículo ya fue dado de baja");
@@ -143,6 +138,31 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             articuloExistente.setPrecioVenta(articuloDTO.getPrecioVenta());
         }
 
+        // --- Recalcular ProveedorArticulo si cambian stock, demandaDiaria o desviacionEstandar ---
+        boolean recalcular = false;
+
+        if (articuloDTO.getStock() != articuloExistente.getStock()) {
+            articuloExistente.setStock(articuloDTO.getStock());
+            recalcular = true;
+        }
+        if (articuloDTO.getDemandaDiaria() != articuloExistente.getDemandaDiaria()) {
+            articuloExistente.setDemandaDiaria(articuloDTO.getDemandaDiaria());
+            recalcular = true;
+        }
+        if (articuloDTO.getDesviacionEstandar() != articuloExistente.getDesviacionEstandar()) {
+            articuloExistente.setDesviacionEstandar(articuloDTO.getDesviacionEstandar());
+            recalcular = true;
+        }
+
+        if (recalcular) {
+            List<ProveedorArticulo> proveedorArticulos = proveedorArticuloService.findActivosByArticuloId(articuloExistente.getId());
+            for (ProveedorArticulo pa : proveedorArticulos) {
+                EstrategiaCalculoInventario estrategia = fabricaEstrategiaCalculoInventario.obtener(pa.getTipoLote());
+                estrategia.calcular(pa);
+            }
+        }
+        // ----------------------------------------------------------------------
+
         // Verificar si se quiere cambiar el proveedor predeterminado.
         if (articuloDTO.getProveedorDTO() != null  && articuloDTO.getProveedorDTO().getId() != null ) {
 
@@ -160,13 +180,13 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             //Buscar instancia de ProveedorArticulo asociada al articulo y al proveedor. Tiene que estar activa.
             Optional<ProveedorArticulo> proveedorArticuloOptional = proveedorArticuloService.buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(nuevoProveedorElegido.getId(),articuloExistente.getId());
 
-           if (proveedorArticuloOptional.isEmpty()){
+            if (proveedorArticuloOptional.isEmpty()){
                 throw new Exception("El proveedor elegido no trabaja con este artículo");
-           }
+            }
 
             //Recalcular valores al ingresar el nuevo Proveedor.
-           EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(proveedorArticuloOptional.get().tipoLote);
-           estrategiaCalculoInventario.calcular(proveedorArticuloOptional.get());
+            EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(proveedorArticuloOptional.get().tipoLote);
+            estrategiaCalculoInventario.calcular(proveedorArticuloOptional.get());
 
             // Si pasa la validación, se asigna el proveedor
             articuloExistente.setProveedorElegidoID(nuevoProveedorElegido.getId());
@@ -174,12 +194,12 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         }
 
         //Guardar el nuevo articulo
-
         Articulo articuloModificado = update(articuloExistente.getId(), articuloExistente);
 
         return crearArticuloDTO(articuloModificado);
 
     }
+
 
     //modificarParámetrosInventario
     @Transactional
@@ -196,6 +216,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         // Setear nuevos valores
         articulo.setDemandaDiaria(articuloDTO.getDemandaDiaria());
         articulo.setDesviacionEstandar(articuloDTO.getDesviacionEstandar());
+        articulo.setStock(articuloDTO.getStock());
 
         // Guardar y devolver DTO
         Articulo articuloActualizado = this.update(articulo.getId(), articulo);

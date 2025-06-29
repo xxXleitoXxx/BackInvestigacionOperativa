@@ -119,7 +119,7 @@ public class ArticuloController extends BaseControllerImpl<Articulo, ArticuloSer
     }
 
     //listarProductosFaltantes
-    @PostMapping("/articulosFaltantes")
+    @GetMapping("/articulosFaltantes")
     public ResponseEntity<?> listarProductosFaltantes() {
         try {
             List<ArticuloDTO> articulosFaltantes = servicio.listarArticulosFaltantes();

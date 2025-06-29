@@ -217,16 +217,12 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
 
             EstrategiaCalculoInventario estrategiaCalculoInventario = fabricaEstrategiaCalculoInventario.obtener(pa.getTipoLote());
             proveedorArticuloRecalculado.add(estrategiaCalculoInventario.calcular(pa));
-
         }
 
         proveedorExistente.setProveedorArticulos(proveedorArticuloRecalculado);
 
         //Actualizar al proveedor.
         Proveedor proveedorModficado = update(proveedorExistente.getId(),proveedorExistente);
-
-
-
 
 
         return crearProveedorDTO(proveedorModficado);
@@ -532,5 +528,6 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
 
         return dto;
     }
+
 
 }

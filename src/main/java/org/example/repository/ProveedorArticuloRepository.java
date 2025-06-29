@@ -16,6 +16,10 @@ public interface ProveedorArticuloRepository extends BaseRepository<ProveedorArt
     @Query("SELECT pa FROM Proveedor p " + "JOIN p.proveedorArticulos pa " + "WHERE p.id = :idProveedor " + "AND pa.art.id = :idArticulo " + "AND pa.fechaHoraBajaArtProv IS NULL")
     Optional<ProveedorArticulo> buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo(@Param("idProveedor") Long idProveedor, @Param("idArticulo") Long idArticulo);
 
+    //buscarInstanciaActivaProveedorArticuloSegunProveedorYArticulo
+    @Query("SELECT pa FROM ProveedorArticulo pa WHERE pa.art.id = :articuloId AND pa.fechaHoraBajaArtProv IS NULL")
+    List<ProveedorArticulo> findActivosByArticuloId(Long articuloId);
+
 
 
 }
