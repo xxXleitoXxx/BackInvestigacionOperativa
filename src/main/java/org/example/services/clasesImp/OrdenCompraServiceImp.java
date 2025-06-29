@@ -48,7 +48,7 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
     public Boolean crear(OrdenCompraDTO ordenCompra) {
         boolean PuedoCrear = true;
         System.out.println("A");
-        if (!Objects.equals(ordenCompra.getEstadoOrdenCompraDTO().getNomEOC(), "Pendiente")){
+        if (ordenCompra.getEstadoOrdenCompraDTO().getId() != 1){
             System.out.println("B");
            PuedoCrear = false;
         }
@@ -159,7 +159,7 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
                                 for (ProveedorArticulo pa1 : prov.getProveedorArticulos()) {
                                     if (Objects.equals(pa1.getArt().getId(), art.getId())) {
                                         demora = pa.getDemoraEntrega();
-                                        loteoptimo = pa.getLoteOptimo();
+                                        loteoptimo = pa.getInventarioMaximo();
                                         precio = pa.getCostoUnitario();
                                     }
                                     LocalDateTime nuevaFecha = LocalDateTime.now();
@@ -305,10 +305,13 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
 
         for (ProveedorArticulo pa : prov.getProveedorArticulos()) {
 
-            if (Objects.equals(pa.getArt().getId(), art.getId())) {
+            if (Objects.equals(pa.getArt().getId(), art.getId())  && pa.tipoLote == TipoLote.LOTEFIJO  ) {
                 monto = pa.getLoteOptimo() - art.getStock() + art.getStockSeguridad();
             }
 
+            if (Objects.equals(pa.getArt().getId(), art.getId())  && pa.tipoLote == TipoLote.PERIODOFIJO  ) {
+                monto = pa.getInventarioMaximo() - art.getStock();
+            }
 
         }
         if (monto < 0) {

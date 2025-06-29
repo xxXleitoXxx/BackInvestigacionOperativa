@@ -112,10 +112,7 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
                 ordenCompraE = ordenCompraServiceImp.DTOaOC(ordenCompra);
                 servicio.save(ordenCompraE);
                 if (!llegoStockMax){
-                    try {
                         throw new Exception("No se llego al lote optimo");
-                    }catch (Exception e){            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-                    }
                 } else {
                     return ResponseEntity.status(HttpStatus.OK).body(Map.of("error","no llego al lote optimo" ));
                 }
