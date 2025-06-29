@@ -100,26 +100,21 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
 
 
     @PutMapping("/finalizar")
-    public ResponseEntity<?> finalizar(@RequestBody OrdenCompraDTO ordenCompra){
+    public ResponseEntity<?> finalizar(@RequestBody OrdenCompraDTO ordenCompra) {
         try {
 
             Boolean PuedoFinalizar = this.ordenCompraServiceImp.finalizar(ordenCompra);
 
-            if (PuedoFinalizar){
-                boolean llegoStockMax = false;
-                llegoStockMax = ordenCompraServiceImp.actualizarStock(ordenCompra);
+            if (PuedoFinalizar) {
+                ordenCompraServiceImp.actualizarStock(ordenCompra);
                 OrdenCompra ordenCompraE = new OrdenCompra();
                 ordenCompraE = ordenCompraServiceImp.DTOaOC(ordenCompra);
                 servicio.save(ordenCompraE);
-                if (!llegoStockMax){
-                        throw new Exception("No se llego al lote optimo");
-                } else {
-                    return ResponseEntity.status(HttpStatus.OK).body(Map.of("error","no llego al lote optimo" ));
-                }
+                ordenCompraServiceImp.verSiLoteOptimo(ordenCompraE);
+                return ResponseEntity.ok(ordenCompraE);
 
-            }else throw new Exception("No podes Finalizar esta Orden de Compra");
+            } else throw new Exception("No podes Finalizar esta Orden de Compra");
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }

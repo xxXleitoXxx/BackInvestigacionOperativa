@@ -101,21 +101,12 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
         return posible;
     }
 
-    public boolean actualizarStock(OrdenCompraDTO ordenCompra) throws Exception {
-        boolean llego = true;
+    public void actualizarStock(OrdenCompraDTO ordenCompra) throws Exception {
         Articulo articulo = articuloRepository.findById(ordenCompra.getArticuloDTO().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + ordenCompra.getArticuloDTO().getId()));
         int StockNuevo = articulo.getStock() + ordenCompra.getCantPedida();
         articulo.setStock(StockNuevo);
-            Proveedor prov = proveedorRepository.findById(ordenCompra.getProveedorDTO().getId()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + ordenCompra.getProveedorDTO().getId()));
-            for (ProveedorArticulo pa : prov.getProveedorArticulos()){
-                if (Objects.equals(pa.getArt().getId(), ordenCompra.getArticuloDTO().getId())){
-                    if(StockNuevo < pa.getLoteOptimo()){
-                        llego = false;
-                    }
-                }
-            }
-            articuloRepository.save(articulo);
-            return llego;
+        articuloRepository.save(articulo);
+
     }
 
     @Transactional
@@ -228,18 +219,18 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
         Articulo art = articuloRepository.findById(dto.getArticuloDTO().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + dto.getArticuloDTO().getId() ));
         EstadoOrdenCompra eoc = estadoOrdenCompraRepository.findById(dto.getEstadoOrdenCompraDTO().getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + dto.getEstadoOrdenCompraDTO().getId() ));
         orden.setEstadoOrdCom(eoc);
-        Proveedor proveedor = proveedorRepository.findById(art.getProveedorElegidoID()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + art.getProveedorElegidoID() ));
-        orden.setProv(proveedor);
+        Optional<Proveedor> proveedor = Optional.ofNullable(proveedorRepository.findById(dto.getProveedorDTO().getId()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + dto.getProveedorDTO().getId())));
+        orden.setProv(proveedor.get());
         long demora = 1;
         float precio = 0;
-        for (ProveedorArticulo pa : proveedorArticuloRepository.findAll()){
-            if (pa.getArt() == art){
+        for (ProveedorArticulo pa : proveedor.get().getProveedorArticulos()){
+            if (pa.getArt() == art && pa.getFechaHoraBajaArtProv() != null){
                 demora = pa.getDemoraEntrega();
                 precio = pa.getCostoUnitario();
             }
         }
         orden.setMontoTotalOrdCom(dto.getCantPedida() * precio);
-        if (Objects.equals(eoc.getNomEOC(), "Enviada")) {
+        if (Objects.equals(eoc.getId(), 2)) {
             LocalDateTime fechaactual = LocalDateTime.now();
             LocalDateTime nuevaFecha = LocalDateTime.now();
             LocalDateTime fechaLlegada = fechaactual.plusDays(demora);
@@ -319,5 +310,18 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
         } else {
             return monto;
         }
+    }
+
+    public void verSiLoteOptimo(OrdenCompra ordenCompra) throws Exception {
+
+        Proveedor prov = proveedorRepository.findById(ordenCompra.getProv().getId()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + ordenCompra.getProv().getId()));
+        for (ProveedorArticulo pa : prov.getProveedorArticulos()){
+            if (Objects.equals(pa.getArt().getId(), ordenCompra.getArticulo().getId())){
+                if(ordenCompra.getArticulo().getStock() < pa.getLoteOptimo()){
+                    throw new Exception("No se llego al stock optimo");
+                }
+            }
+        }
+
     }
 }
