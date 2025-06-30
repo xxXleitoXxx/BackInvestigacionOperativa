@@ -138,11 +138,6 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             throw new Exception("El artículo ya fue dado de baja");
         }
 
-//        // Comprobar que no tenga órdenes de compra pendientes o enviadas
-//        if (comprobarOrdenDeCompraPendienteOEnviada(articuloDTO.getId())) {
-//            throw new Exception("El artículo tiene órdenes de compra pendientes o enviadas y no puede ser modificado");
-//        }
-
         // Actualizar campos básicos
         if (articuloDTO.getNomArt() != null && !articuloDTO.getNomArt().isBlank()) {
             articuloExistente.setNomArt(articuloDTO.getNomArt());
@@ -204,6 +199,9 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             // Si pasa la validación, se asigna el proveedor
             articuloExistente.setProveedorElegidoID(nuevoProveedorElegido.getId());
 
+        } else if (articuloDTO.getProveedorDTO() == null || articuloDTO.getProveedorDTO().getId() == null) {
+            // Si el proveedorDTO es nulo o su id es nulo, eliminar el proveedor elegido
+            articuloExistente.setProveedorElegidoID(null);
         }
 
         //Guardar el nuevo articulo
@@ -212,6 +210,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         return crearArticuloDTO(articuloModificado);
 
     }
+
 
     //modificarParámetrosInventario
     @Transactional
@@ -319,7 +318,7 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
         }
 
         for (Articulo articulo : listaArticulos) {
-            if (comprobarOrdenDeCompraPendienteOEnviada(articulo.getId())) {
+            if (!comprobarOrdenDeCompraPendienteOEnviada(articulo.getId())) {
                 listaArticulos.remove(articulo);
             }
         }
