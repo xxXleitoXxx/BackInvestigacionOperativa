@@ -39,8 +39,9 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
     public Boolean mod(OrdenCompraDTO ordenCompra) {
         boolean posible = false;
         long idEstado = ordenCompra.getEstadoOrdenCompraDTO().getId() - 1;
+        System.out.println(idEstado);
         OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
-        if (ordenCompra.getEstadoOrdenCompraDTO().getId() == 1 || ordenCompra.getEstadoOrdenCompraDTO().getId() == 0) {
+        if (idEstado == 1 || idEstado == 0) {
             posible = true;
         }
         return posible;
