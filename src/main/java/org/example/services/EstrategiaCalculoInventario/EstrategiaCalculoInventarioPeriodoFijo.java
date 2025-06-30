@@ -23,7 +23,7 @@ public class EstrategiaCalculoInventarioPeriodoFijo implements EstrategiaCalculo
 
         //Calcular Stock de seguridad y cantidad a pedir q
 
-        int stockSeguridad = (int) Math.round(z * o * (T + L) * Math.sqrt(T+L)); //Stock de seguridad
+        int stockSeguridad = (int) Math.round(z * o *  Math.sqrt(T+L)); //Stock de seguridad
         int q = (int) Math.round(d * (T + L) + stockSeguridad - I);
 
         //Calcular cantidadOptima e inventario maximo.
@@ -33,12 +33,12 @@ public class EstrategiaCalculoInventarioPeriodoFijo implements EstrategiaCalculo
         Float S = proveedorArticulo.getCostoPedido();   //Costo de pedido
         int Q = (int) Math.round(Math.sqrt((2.0 * D * S) / H));
         Float CT = (float) Math.round(D * C + (D / (float) q) * S + (q / 2.0f) * H);
-        int invetarioMaximo = q + I;
+        int inventarioMaximo = q + I;
 
         //Setear nuevos valores al ProveedorArticulo.
 
         proveedorArticulo.setLoteOptimo(Q);
-        proveedorArticulo.setInventarioMaximo(invetarioMaximo);
+        proveedorArticulo.setInventarioMaximo(inventarioMaximo);
         proveedorArticulo.setCantidadAPedir(q);
         proveedorArticulo.setCostoGeneralInventario(CT);
 

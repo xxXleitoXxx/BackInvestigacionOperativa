@@ -271,23 +271,19 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
     }
 
     //listaProveedorPorArticulo
-    @Transactional
     public List<ArticuloProvDTO> listarProveedoresPorArticulo(ArticuloDTO articuloDTO) throws Exception {
-
-        //Buscar artículo
         Articulo articulo = findById(articuloDTO.getId());
-        //Buscar lista de proveedores activos por artículo.
-        List<Proveedor> listaProveedoresProveedoresActivosPorArticulo = proveedorService.findProveedoresActivosByArticuloId(articuloDTO.getId());
-        // Crear lista de ProveedorDTO
-        List<ArticuloProvDTO> listaProveedoresProveedoresActivosPorArticuloDTO = new ArrayList<>();
+        List<Proveedor> proveedores = proveedorService.findProveedoresActivosByArticuloId(articuloDTO.getId());
+        List<ArticuloProvDTO> resultado = new ArrayList<>();
 
-        for (Proveedor proveedor : listaProveedoresProveedoresActivosPorArticulo) {
-            ArticuloProvDTO proveedorDTO = crearProveedorDTO(proveedor);
-            listaProveedoresProveedoresActivosPorArticuloDTO.add(proveedorDTO);
+        for (Proveedor proveedor : proveedores) {
+            boolean tieneRelacionActiva = proveedor.getProveedorArticulos().stream()
+                    .anyMatch(pa -> pa.getArt().getId().equals(articulo.getId()) && pa.getFechaHoraBajaArtProv() == null);
+            if (tieneRelacionActiva) {
+                resultado.add(crearProveedorDTO(proveedor));
+            }
         }
-
-        return listaProveedoresProveedoresActivosPorArticuloDTO;
-
+        return resultado;
     }
 
     //listarArticulosFaltantes
