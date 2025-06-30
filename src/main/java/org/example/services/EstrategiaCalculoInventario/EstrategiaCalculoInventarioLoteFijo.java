@@ -19,7 +19,7 @@ public class EstrategiaCalculoInventarioLoteFijo implements EstrategiaCalculoInv
 
         //Calcular Stock de seguridad y punto pedido R.
 
-        int stockSeguridad = (int) (z*o);
+        int stockSeguridad = (int) Math.floor(z * o);
         int R = d*L + stockSeguridad;
 
         //Calcular cantidadOptima y costo general inventario.

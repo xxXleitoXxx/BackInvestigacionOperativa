@@ -22,7 +22,7 @@ public class EstrategiaCalculoInventarioPeriodoFijo implements EstrategiaCalculo
 
         //Calcular Stock de seguridad y cantidad a pedir q
 
-        int stockSeguridad = (int) (z*o*(T+L));
+        int stockSeguridad = (int) Math.floor(z*o*(T+L));
         int q = d*(T+L) + stockSeguridad - I;
 
         //Calcular cantidadOptima e inventario maximo.

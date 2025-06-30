@@ -49,45 +49,49 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
 
     public Boolean crear(OrdenCompraDTO ordenCompra) {
         boolean PuedoCrear = true;
-        System.out.println("A");
-        if (ordenCompra.getEstadoOrdenCompraDTO().getId() != 1){
-            System.out.println("B");
-           PuedoCrear = false;
-        }
+        try {
+            System.out.println("A");
+            if (ordenCompra.getEstadoOrdenCompraDTO().getId() != 1) {
+                System.out.println("B");
+               throw new Exception("El estado de la orden de compra debe ser 'Pendiente' para crear una nueva orden de compra");
+            }
 
-        System.out.println("C");
-        Articulo art = articuloRepository.findById(ordenCompra.getArticuloDTO().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + ordenCompra.getArticuloDTO().getId() ));
-        System.out.println("D");
-        //ordenCompra.getArticuloDTO();
-        if (art.getFechaHoraBajaArt() != null){
-            PuedoCrear = false;
-        }
-        for (OrdenCompra oc : ordenCompraRepository.findAll()) {
-            System.out.println("E");
-            if ((Objects.equals(ordenCompra.getArticuloDTO().getId(), art.getId())) && ( (Objects.equals(oc.getEstadoOrdCom().getId(), 3))) || (Objects.equals(oc.getEstadoOrdCom().getId(), 4)) ) {
-                        PuedoCrear = false;
-                System.out.println("F");
-                        break;
+            System.out.println("C");
+            Articulo art = articuloRepository.findById(ordenCompra.getArticuloDTO().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + ordenCompra.getArticuloDTO().getId()));
+            System.out.println("D");
+            //ordenCompra.getArticuloDTO();
+            if (art.getFechaHoraBajaArt() != null) {
+               throw new Exception("El articulo esta dado de baja");
             }
-            break;
-        }
-        System.out.println("G");
-        Proveedor prov = proveedorRepository.findById(ordenCompra.getProveedorDTO().getId()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + art.getProveedorElegidoID() ));
-        System.out.println("H");
-        if (prov.getFechaHoraBajaProv() != null){
-            PuedoCrear = false;
-        }
-        for (ProveedorArticulo pa : prov.getProveedorArticulos()){
-            System.out.println("I");
-            if (Objects.equals(prov.getId(), ordenCompra.getProveedorDTO().getId())  && pa.getFechaHoraBajaArtProv() != null  ){
-                PuedoCrear = true;
-                System.out.println("J");
+            for (OrdenCompra oc : ordenCompraRepository.findAll()) {
+                System.out.println("E");
+                if ((Objects.equals(ordenCompra.getArticuloDTO().getId(), art.getId())) && ((Objects.equals(oc.getEstadoOrdCom().getId(), 3))) || (Objects.equals(oc.getEstadoOrdCom().getId(), 4))) {
+                    System.out.println("F");
+                    throw new Exception("Ya existe una orden de compra para este articulo con estado finalizado o cancelado");
+
+                }
+                break;
             }
+            System.out.println("G");
+            Proveedor prov = proveedorRepository.findById(ordenCompra.getProveedorDTO().getId()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + art.getProveedorElegidoID()));
+            for (ProveedorArticulo pa : prov.getProveedorArticulos()) {
+                System.out.println("I");
+                if (Objects.equals(prov.getId(), ordenCompra.getProveedorDTO().getId()) && pa.getFechaHoraBajaArtProv() != null) {
+                    PuedoCrear = true;
+                    System.out.println("J");
+                }
+            }
+            System.out.println("H");
+            if (prov.getFechaHoraBajaProv() != null) {
+                throw new Exception("El proveedor esta dado de baja");
+            }
+
+            System.out.println("K");
+            return PuedoCrear;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        System.out.println("K");
-        return PuedoCrear;
     }
-
     public Boolean cancelar(OrdenCompraDTO ordenCompra) {
         boolean posible = true;
         OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
