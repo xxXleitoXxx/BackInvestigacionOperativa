@@ -38,8 +38,9 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
 
     public Boolean mod(OrdenCompraDTO ordenCompra) {
         boolean posible = false;
+        long idEstado = ordenCompra.getEstadoOrdenCompraDTO().getId() - 1;
         OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
-        if (Objects.equals(oc.getEstadoOrdCom().getId(), 1)){
+        if (ordenCompra.getEstadoOrdenCompraDTO().getId() == 1 || ordenCompra.getEstadoOrdenCompraDTO().getId() == 0) {
             posible = true;
         }
         return posible;
@@ -97,6 +98,7 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
         OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
         if (oc.getEstadoOrdCom().getId() == 2){
             posible = true;
+
         }
         return posible;
     }
@@ -216,19 +218,27 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
 
         OrdenCompra orden = ordenCompraRepository.findById(dto.getId()).orElseThrow(() -> new RuntimeException("OrdenCompra no encontrado con ID: " + dto.getId() ));
         orden.setCantPedida(dto.getCantPedida());
+        System.out.println(dto.getCantPedida());
         Articulo art = articuloRepository.findById(dto.getArticuloDTO().getId()).orElseThrow(() -> new RuntimeException("Articulo no encontrado con ID: " + dto.getArticuloDTO().getId() ));
         EstadoOrdenCompra eoc = estadoOrdenCompraRepository.findById(dto.getEstadoOrdenCompraDTO().getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + dto.getEstadoOrdenCompraDTO().getId() ));
         orden.setEstadoOrdCom(eoc);
-        Optional<Proveedor> proveedor = Optional.ofNullable(proveedorRepository.findById(dto.getProveedorDTO().getId()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + dto.getProveedorDTO().getId())));
-        orden.setProv(proveedor.get());
+        Optional<Proveedor> prov = Optional.ofNullable(proveedorRepository.findById(dto.getProveedorDTO().getId()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + dto.getProveedorDTO().getId())));
+        orden.setProv(prov.get());
+        System.out.println(prov.get().getId());
         long demora = 1;
         float precio = 0;
-        for (ProveedorArticulo pa : proveedor.get().getProveedorArticulos()){
-            if (pa.getArt() == art && pa.getFechaHoraBajaArtProv() != null){
+        for (ProveedorArticulo pa : prov.get().getProveedorArticulos()){
+            System.out.println("3");
+            System.out.println(art.getId());
+            System.out.println(pa.getArt().getId());
+            if (pa.getArt().getId() == art.getId() && pa.getFechaHoraBajaArtProv() == null){
                 demora = pa.getDemoraEntrega();
+                System.out.println("2");
                 precio = pa.getCostoUnitario();
+                System.out.println(precio);
             }
         }
+        System.out.println(dto.getCantPedida() * precio);
         orden.setMontoTotalOrdCom(dto.getCantPedida() * precio);
         if (Objects.equals(eoc.getId(), 2)) {
             LocalDateTime fechaactual = LocalDateTime.now();
@@ -324,4 +334,5 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
         }
 
     }
+
 }

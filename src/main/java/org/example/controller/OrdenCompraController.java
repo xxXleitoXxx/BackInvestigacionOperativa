@@ -63,10 +63,11 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
     public ResponseEntity<?> mod(@RequestBody OrdenCompraDTO ordenCompra){
         try {
             Boolean PuedoMod = this.ordenCompraServiceImp.mod(ordenCompra);
-            if (PuedoMod = true){
+            System.out.println(PuedoMod);
+            if (PuedoMod == true){
                 OrdenCompra ordenCompraE = new OrdenCompra();
                 ordenCompraE = ordenCompraServiceImp.DTOaOC(ordenCompra);
-                servicio.save(ordenCompraE);
+                servicio.update(ordenCompraE.getId(),ordenCompraE);
             return ResponseEntity.status(HttpStatus.OK).body("funciona");
             } else {
                 return ResponseEntity.status(HttpStatus.OK).body("no se puede modificar esta Orden de Compra");
@@ -76,7 +77,6 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-
 
     @PutMapping("/cancelar")
     public ResponseEntity<?> cancelar(@RequestBody OrdenCompraDTO ordenCompra){
