@@ -166,6 +166,8 @@ public class ProveedorServiceImp extends BaseServiceImpl<Proveedor, Long> implem
                         proveedorArticuloExistente.setPeriodoRevision(paDTO.getPeriodoRevision());
                         proveedorArticuloExistente.setFechaHoraBajaArtProv(null);
                         proveedorArticuloExistente.setTipoLote(paDTO.getTipoLote());
+
+
                     }
 
                     listaProveedorArticuloModificado.add(proveedorArticuloExistente);
