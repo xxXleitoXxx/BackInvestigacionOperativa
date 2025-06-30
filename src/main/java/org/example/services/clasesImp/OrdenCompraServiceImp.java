@@ -88,7 +88,7 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
     public Boolean cancelar(OrdenCompraDTO ordenCompra) {
         boolean posible = true;
         OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
-        if (oc.getEstadoOrdCom().getId() != 1){
+        if (oc.getEstadoOrdCom().getId() != 2){
             posible = false;
         }
         return posible;
@@ -96,8 +96,9 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
 
     public Boolean finalizar(OrdenCompraDTO ordenCompra) {
         boolean posible = false;
+        System.out.println(ordenCompra.getEstadoOrdenCompraDTO().getId());
         OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
-        if (oc.getEstadoOrdCom().getId() == 2){
+        if (oc.getEstadoOrdCom().getId() == 3){
             posible = true;
 
         }

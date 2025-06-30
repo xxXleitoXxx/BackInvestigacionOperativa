@@ -104,7 +104,7 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
         try {
 
             Boolean PuedoFinalizar = this.ordenCompraServiceImp.finalizar(ordenCompra);
-
+            System.out.println(PuedoFinalizar);
             if (PuedoFinalizar) {
                 ordenCompraServiceImp.actualizarStock(ordenCompra);
                 OrdenCompra ordenCompraE = new OrdenCompra();
