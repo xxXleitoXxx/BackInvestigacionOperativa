@@ -97,8 +97,10 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
     public Boolean finalizar(OrdenCompraDTO ordenCompra) {
         boolean posible = false;
         System.out.println(ordenCompra.getEstadoOrdenCompraDTO().getId());
+
         OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
-        if (oc.getEstadoOrdCom().getId() == 3){
+        System.out.println(oc.getEstadoOrdCom().getId());
+        if (oc.getEstadoOrdCom().getId() == 2){
             posible = true;
 
         }
