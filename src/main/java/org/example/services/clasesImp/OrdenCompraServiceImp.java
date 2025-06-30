@@ -74,6 +74,9 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
         System.out.println("G");
         Proveedor prov = proveedorRepository.findById(ordenCompra.getProveedorDTO().getId()).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + art.getProveedorElegidoID() ));
         System.out.println("H");
+        if (prov.getFechaHoraBajaProv() != null){
+            PuedoCrear = false;
+        }
         for (ProveedorArticulo pa : prov.getProveedorArticulos()){
             System.out.println("I");
             if (Objects.equals(prov.getId(), ordenCompra.getProveedorDTO().getId())  && pa.getFechaHoraBajaArtProv() != null  ){
