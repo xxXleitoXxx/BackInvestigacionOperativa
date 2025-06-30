@@ -91,7 +91,7 @@ public class OrdenCompraServiceImp extends BaseServiceImpl<OrdenCompra,Long> imp
     public Boolean cancelar(OrdenCompraDTO ordenCompra) {
         boolean posible = true;
         OrdenCompra oc = ordenCompraRepository.findById(ordenCompra.getId()).orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + ordenCompra.getId()));
-        if (oc.getEstadoOrdCom().getId() != 2){
+        if (oc.getEstadoOrdCom().getId() != 1){
             posible = false;
         }
         return posible;
