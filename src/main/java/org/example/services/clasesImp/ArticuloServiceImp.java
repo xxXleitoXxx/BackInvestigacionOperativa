@@ -305,21 +305,19 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
 
     //listarProductosAReponer. Productos de lote fijo que han alcanzado R.
     @Transactional
-    public List<ArticuloDTO> listarProductosAReponer(){
-
+    public List<ArticuloDTO> listarProductosAReponer() {
         List<ProveedorArticulo> listaProveedorArticulo = proveedorArticuloService.findByFechaHoraBajaArtProvIsNull();
-        List <Articulo> listaArticulos = new ArrayList<Articulo>();
+        List<Articulo> listaArticulos = new ArrayList<>();
 
-        for (ProveedorArticulo proveedorArticulo : listaProveedorArticulo){
-
-            if(proveedorArticulo.getTipoLote() == TipoLote.LOTEFIJO && proveedorArticulo.getArt().getStockSeguridad() < proveedorArticulo.getArt().getStock() && proveedorArticulo.getArt().getStock() <= proveedorArticulo.getPuntoPedido() ){
-                listaArticulos.add(proveedorArticulo.getArt());
-            }
-        }
-
-        for (Articulo articulo : listaArticulos) {
-            if (!comprobarOrdenDeCompraPendienteOEnviada(articulo.getId())) {
-                listaArticulos.remove(articulo);
+        for (ProveedorArticulo proveedorArticulo : listaProveedorArticulo) {
+            Articulo art = proveedorArticulo.getArt();
+            if (
+                    proveedorArticulo.getTipoLote() == TipoLote.LOTEFIJO &&
+                            art.getStockSeguridad() < art.getStock() &&
+                            art.getStock() <= proveedorArticulo.getPuntoPedido() &&
+                            !comprobarOrdenDeCompraPendienteOEnviada(art.getId()) // Solo si NO tiene orden pendiente o enviada
+            ) {
+                listaArticulos.add(art);
             }
         }
 
@@ -328,7 +326,6 @@ public class ArticuloServiceImp extends BaseServiceImpl<Articulo,Long> implement
             listaDTO.add(crearArticuloDTO(articulo));
         }
         return listaDTO;
-
     }
 
     //listarTodos
