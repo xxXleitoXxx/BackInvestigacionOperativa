@@ -9,6 +9,7 @@ public class EstrategiaCalculoInventarioPeriodoFijo implements EstrategiaCalculo
     @Override
     public ProveedorArticulo calcular(ProveedorArticulo proveedorArticulo) {
 
+        //Periodo Fijo.
         //Variables para cálculo del lote óptimo o punto para volver a pedir R.
 
         int d = proveedorArticulo.getArt().getDemandaDiaria(); //Demanda diaria
@@ -22,17 +23,17 @@ public class EstrategiaCalculoInventarioPeriodoFijo implements EstrategiaCalculo
 
         //Calcular Stock de seguridad y cantidad a pedir q
 
-        int stockSeguridad = (int) Math.floor(z*o*(T+L));
-        int q = d*(T+L) + stockSeguridad - I;
+        int stockSeguridad = (int) Math.round(z * o * (T + L) * Math.sqrt(T+L)); //Stock de seguridad
+        int q = (int) Math.round(d * (T + L) + stockSeguridad - I);
 
         //Calcular cantidadOptima e inventario maximo.
 
         Float C = proveedorArticulo.getCostoUnitario(); //Costo por Unidad
         Float H = proveedorArticulo.getCostoMantenimiento(); //Costo de mantenimiento
         Float S = proveedorArticulo.getCostoPedido();   //Costo de pedido
-        int Q = (int) Math.sqrt((2.0 * D * S) / H);
-        Float CT = D*C + (D/q)*S +(q/2)*H;
-        int invetarioMaximo =q + I;
+        int Q = (int) Math.round(Math.sqrt((2.0 * D * S) / H));
+        Float CT = (float) Math.round(D * C + (D / (float) q) * S + (q / 2.0f) * H);
+        int invetarioMaximo = q + I;
 
         //Setear nuevos valores al ProveedorArticulo.
 
@@ -41,15 +42,12 @@ public class EstrategiaCalculoInventarioPeriodoFijo implements EstrategiaCalculo
         proveedorArticulo.setCantidadAPedir(q);
         proveedorArticulo.setCostoGeneralInventario(CT);
 
-
-
         //Setear nuevos valores al Articulo.
-
         proveedorArticulo.getArt().setStockSeguridad(stockSeguridad);
-
         return proveedorArticulo;
 
     }
+
 
     @Override
     public TipoLote getTipoLote() {
