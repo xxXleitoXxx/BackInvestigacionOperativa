@@ -110,7 +110,7 @@ public class OrdenCompraController extends BaseControllerImpl<OrdenCompra, Orden
                 OrdenCompra ordenCompraE = new OrdenCompra();
                 ordenCompraE = ordenCompraServiceImp.DTOaOC(ordenCompra);
                 servicio.save(ordenCompraE);
-                ordenCompraServiceImp.verSiLoteOptimo(ordenCompraE);
+
                 ordenCompraServiceImp.verSiLoteOptimo(ordenCompraE);
                 return ResponseEntity.ok(ordenCompraE);
 
